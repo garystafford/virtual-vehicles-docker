@@ -1,0 +1,5 @@
+FROM java:8u45-jdk
+# RUN apt-get update -y && apt-get upgrade -y && apt-get install -y telnet nano
+COPY ./artifacts/Vehicle/target /usr/share/java/virtual-vehicles
+WORKDIR /usr/share/java/virtual-vehicles
+EXPOSE 8081
