@@ -22,8 +22,8 @@ Important, after cloning this repository locally, start from this project's root
 
 Optionally, you can pre-pull the required Docker images from Docker Hub. Otherwise, they will be pulled the first time you run the commands, below.
 ```sh
-docker pull hopsoft/graphite-statsd:latest
-docker pull mongo:latest
+docker pull hopsoft/graphite-statsd:latest && \
+docker pull mongo:latest && \
 docker pull java:8u45-jdk
 ```
 Start Graphite/StatsD container (_container 1 of 9_):
