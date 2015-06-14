@@ -63,6 +63,8 @@ docker run -d \
 --link authentication:authentication \
 virtual-vehicles:valet
 ```
+
+#### Interacting with Containers ####
 View all Virtual-Vehicles related images
 ```sh
 docker images | grep 'virtual-vehicles\|mongo\|hopsoft/graphite-statsd' | awk '{print $0}'
