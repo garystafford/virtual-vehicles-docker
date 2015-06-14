@@ -7,6 +7,7 @@ Example of building and running the [Virtual-Vehicles](https://github.com/garyst
 #### Virtual-Vehicles Dockerfile ####
 The Virtual-Vehicles microservice's base images are all built with a similar ```Dockerfile```:
 ```
+# vehicle microservice dockerfile
 FROM java:8u45-jdk
 COPY ./virtual-vehicles-vehicle-docker/artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
@@ -14,6 +15,7 @@ EXPOSE 8581
 ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Vehicle-1.0-SNAPSHOT.jar", "prod", "com.example.vehicle.Main"]
 CMD [""]
 ```
+
 #### Start-Up ####
 The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. Important, start from this project's root directory to run the following series of commands.  
 
