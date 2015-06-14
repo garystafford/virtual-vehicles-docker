@@ -15,9 +15,10 @@ EXPOSE 8581
 ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Vehicle-1.0-SNAPSHOT.jar", "prod", "com.example.vehicle.Main"]
 CMD [""]
 ```
+The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. 
 
 #### Start-Up ####
-The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. Important, start from this project's root directory to run the following series of commands.  
+Important, after cloning this repository locally, start from this project's root directory to run the following Docker commands. The Virtual-Vehicles services images and containers assume you are starting in the project's root folder.
 
 Start Graphite/StatsD container (_container 1 of 9_):
 ```sh
