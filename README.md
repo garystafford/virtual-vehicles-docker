@@ -1,5 +1,5 @@
 # virtual-vehicles-docker
-Repository for files related to containerizing [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project, using Docker. See blog post series [here](http://wp.me/p1RD28-1pm). Contains a Dockerfile and required build artifacts, from Jenkins CI, for all (4) Virtual-Vehicles microservice.
+Repository for files related to containerizing [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project, using Docker. Repository contains a ```Dockerfile``` and required build artifacts, from Jenkins CI, for all (4) Virtual-Vehicles microservices. See blog post series [here](http://wp.me/p1RD28-1pm) for details on using the Virtual-Vehicles microservices-based REST API.
 
 #### Overview ####
 Example of building and running the [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project in a series of Docker containers for development and testing purposes. In this example, the application's (9) containers are run without any centralized orchestration, service discover, and API gateway. Containers rely on ```--link``` for local container DNS-based service discovery. Demonstrates the complexity and limitations of multi-container applications, without the use of orchestration.
