@@ -18,7 +18,7 @@ CMD [""]
 The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. 
 
 #### Start-Up ####
-Important, after cloning this repository locally, start from this project's root directory to run the following Docker commands. The Virtual-Vehicles services images and containers assume you are starting in the project's root folder. Also, you must run build and run commands in the below order for proper container linking.  
+Important, after cloning this repository locally, start from this project's root directory to run the following Docker commands. The Virtual-Vehicles Dockerfiles assume you are in this project's root folder. Also, you must run build and run commands in the below order for proper container linking.  
 
 Optionally, you can pre-pull the required Docker images from Docker Hub. Otherwise, they will be pulled the first time you run the commands, below.
 ```sh
