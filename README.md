@@ -2,7 +2,7 @@
 Repository for files related to containerizing [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project, using Docker. See blog post series [here](http://wp.me/p1RD28-1pm). 
 
 #### Overview ####
-Example of building and running the [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project in a series of Docker containers for development and testing purposes. In this example, the application's (9) containers are run without any centralized orchestration, service discover, and API gateway. Containers rely on ```--link``` for local container DNS-based service discovery. Demonstrates the complexity and limitations of multi-container applications, without the use orchestration.
+Example of building and running the [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project in a series of Docker containers for development and testing purposes. In this example, the application's (9) containers are run without any centralized orchestration, service discover, and API gateway. Containers rely on ```--link``` for local container DNS-based service discovery. Demonstrates the complexity and limitations of multi-container applications, without the use of orchestration.
 
 #### Start-Up ####
 The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. Important, start from this project's root directory to run the following series of commands.  
