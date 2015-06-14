@@ -2,7 +2,7 @@
 Repository for files related to containerizing [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project, using Docker. See blog post series [here](http://wp.me/p1RD28-1pm). 
 
 #### Overview ####
-Example of building and running project[Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project using Docker, without any centralized orchestration, service discover, and API gateway. Containers rely on ```--link``` for local container DNS-based service discovery. Demonstrates the complexity and limitations of multi-container applications, without the use orchestration.
+Example of building and running [Virtual-Vehicles](https://github.com/garystafford/virtual-vehicles-demo) project using Docker, without any centralized orchestration, service discover, and API gateway. Containers rely on ```--link``` for local container DNS-based service discovery. Demonstrates the complexity and limitations of multi-container applications, without the use orchestration.
 
 #### Start-Up ####
 The Virtual-Vehicles service containers are built using project's Java 'prod' environment properties files. Important, start from this project's root directory to run the following series of commands.  
@@ -23,7 +23,8 @@ _You can combine all (4) commands if you want to save time_
 ```sh
 docker build -t virtual-vehicles:authentication \
 -f virtual-vehicles-authentication-docker/Dockerfile . && \
-docker run -d -p 8587:8587 --name authentication \
+docker run -d -p 8587:8587 \
+--name authentication \
 --link graphite:graphite \
 --link mongo_authentication:mongo_authentication \
 virtual-vehicles:authentication
@@ -31,7 +32,8 @@ virtual-vehicles:authentication
 ```sh
 docker build -t virtual-vehicles:vehicle \
 -f virtual-vehicles-vehicle-docker/Dockerfile . && \
-docker run -d -p 8581:8581 --name vehicle \
+docker run -d -p 8581:8581 \
+--name vehicle \
 --link graphite:graphite \
 --link mongo_vehicle:mongo_vehicle \
 --link authentication:authentication \
@@ -40,7 +42,8 @@ virtual-vehicles:vehicle
 ```sh
 docker build -t virtual-vehicles:maintenance \
 -f virtual-vehicles-maintenance-docker/Dockerfile . && \
-docker run -d -p 8583:8583 --name maintenance \
+docker run -d -p 8583:8583 \
+--name maintenance \
 --link graphite:graphite \
 --link mongo_maintenance:mongo_maintenance \
 --link authentication:authentication \
@@ -49,7 +52,8 @@ virtual-vehicles:maintenance
 ```sh
 docker build -t virtual-vehicles:valet \
 -f virtual-vehicles-valet-docker/Dockerfile . && \
-docker run -d -p 8585:8585 --name valet \
+docker run -d -p 8585:8585 \
+--name valet \
 --link graphite:graphite \
 --link mongo_valet:mongo_valet \
 --link authentication:authentication \
@@ -79,15 +83,15 @@ docker exec -i -t "vehicle" /bin/bash
 __CAUTION!__  
 Stop and remove (4) 'virtual-vehicles' service containers and images
 ```sh
-docker ps -a --no-trunc | grep 'virtual-vehicles' | awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
-docker ps -a --no-trunc | grep 'virtual-vehicles' | awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
+docker ps -a --no-trunc  | grep 'virtual-vehicles' | awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
+docker ps -a --no-trunc  | grep 'virtual-vehicles' | awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
 docker images --no-trunc | grep 'virtual-vehicles' | awk '{print $3}' | xargs -r --no-run-if-empty docker rmi
 ```
 __CAUTION!__  
 Stop and remove __ALL__ (8) 'virtual-vehicles' related containers and (4) 'virtual-vehicles' service images, leaving only the 'mongo' and 'hopsoft/graphite-statsd' images
 ```sh
-docker ps -a --no-trunc | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
-docker ps -a --no-trunc | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
+docker ps -a --no-trunc  | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
+docker ps -a --no-trunc  | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
 docker images --no-trunc | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $3}' | xargs -r --no-run-if-empty docker rmi
 ```
   
