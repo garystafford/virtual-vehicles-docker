@@ -23,7 +23,8 @@ _You can combine all (4) commands if you want to save time_
 ```sh
 docker build -t virtual-vehicles:authentication \
 -f virtual-vehicles-authentication-docker/Dockerfile . && \
-docker run -d -p 8587:8587 \
+docker run -d \
+-p 8587:8587 \
 --name authentication \
 --link graphite:graphite \
 --link mongo_authentication:mongo_authentication \
@@ -32,7 +33,8 @@ virtual-vehicles:authentication
 ```sh
 docker build -t virtual-vehicles:vehicle \
 -f virtual-vehicles-vehicle-docker/Dockerfile . && \
-docker run -d -p 8581:8581 \
+docker run -d \
+-p 8581:8581 \
 --name vehicle \
 --link graphite:graphite \
 --link mongo_vehicle:mongo_vehicle \
@@ -42,7 +44,8 @@ virtual-vehicles:vehicle
 ```sh
 docker build -t virtual-vehicles:maintenance \
 -f virtual-vehicles-maintenance-docker/Dockerfile . && \
-docker run -d -p 8583:8583 \
+docker run -d \
+-p 8583:8583 \
 --name maintenance \
 --link graphite:graphite \
 --link mongo_maintenance:mongo_maintenance \
@@ -52,7 +55,8 @@ virtual-vehicles:maintenance
 ```sh
 docker build -t virtual-vehicles:valet \
 -f virtual-vehicles-valet-docker/Dockerfile . && \
-docker run -d -p 8585:8585 \
+docker run -d \
+-p 8585:8585 \
 --name valet \
 --link graphite:graphite \
 --link mongo_valet:mongo_valet \
