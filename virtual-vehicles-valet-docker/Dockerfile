@@ -1,6 +1,6 @@
 FROM java:8u45-jdk
-COPY ./artifacts /usr/share/java/virtual-vehicles
+COPY ./virtual-vehicles-valet-docker/artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
-EXPOSE 8081
+EXPOSE 8585
 ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Valet-1.0-SNAPSHOT.jar", "prod", "com.example.valet.Main"]
 CMD [""]
