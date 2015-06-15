@@ -1,3 +1,5 @@
+# Virtual-Vehicles Authentication microservice Dockerfile
+
 FROM java:8u45-jdk
 MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
