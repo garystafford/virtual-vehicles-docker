@@ -1,0 +1,51 @@
+graphite:
+  image: hopsoft/graphite-statsd:latest
+  ports:
+   - "8481:80"
+
+mongoAuthentication:
+  image: mongo:latest
+
+mongoValet:
+  image: mongo:latest
+
+mongoMaintenance:
+  image: mongo:latest
+
+mongoVehicle:
+  image: mongo:latest
+
+authentication:
+  image: virtual-vehicles:authentication
+  ports:
+   - "8587:8587"
+  links:
+    - graphite:graphite
+    - mongoAuthentication:mongoAuthentication
+
+valet:
+  image: virtual-vehicles:valet
+  ports:
+   - "8585:8585"
+  links:
+    - graphite:graphite
+    - mongoValet:mongoValet
+    - authentication:authentication
+
+maintenance:
+  image: virtual-vehicles:valet
+  ports:
+   - "8583:8583"
+  links:
+    - graphite:graphite
+    - mongoMaintenance:mongoMaintenance
+    - authentication:authentication
+
+vehicle:
+  image: virtual-vehicles:vehicle
+  ports:
+   - "8581:8581"
+  links:
+    - graphite:graphite
+    - mongoVehicle:mongoVehicle
+    - authentication:authentication
