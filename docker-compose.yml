@@ -16,7 +16,7 @@ mongoVehicle:
   image: mongo:latest
 
 authentication:
-  build: virtual-vehicles-authentication-docker/
+  build: authentication/
   ports:
    - "8587:8587"
   links:
@@ -24,7 +24,7 @@ authentication:
    - mongoAuthentication:mongoAuthentication
 
 valet:
-  build: virtual-vehicles-valet-docker/
+  build: valet/
   ports:
    - "8585:8585"
   links:
@@ -33,7 +33,7 @@ valet:
    - authentication:authentication
 
 maintenance:
-  build: virtual-vehicles-maintenance-docker/
+  build: maintenance/
   ports:
    - "8583:8583"
   links:
@@ -42,7 +42,7 @@ maintenance:
    - authentication:authentication
 
 vehicle:
-  build: virtual-vehicles-vehicle-docker/
+  build: vehicle/
   ports:
    - "8581:8581"
   links:

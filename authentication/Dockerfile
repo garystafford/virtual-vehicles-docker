@@ -1,4 +1,4 @@
-# Virtual-Vehicles Valet microservice Dockerfile
+# Virtual-Vehicles Authentication microservice Dockerfile
 
 FROM java:8u45-jdk
 MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
@@ -13,10 +13,10 @@ apt-get -y clean && \
 apt-get -y autoclean && \
 apt-get -y autoremove
 
-COPY ./virtual-vehicles-valet-docker/artifacts /usr/share/java/virtual-vehicles
+COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
 
-EXPOSE 8585
+EXPOSE 8587
 
-ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Valet-1.0-SNAPSHOT.jar", "prod", "com.example.valet.Main"]
+ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Authentication-1.0-SNAPSHOT.jar", "prod", "com.example.authentication.Main"]
 CMD [""]
