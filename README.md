@@ -110,16 +110,23 @@ docker ps -a | grep 'virtual-vehicles\|mongo_\|graphite' | awk '{print $0}'
 ```
 Check Virtual-Vehicles service container logs for start-up errors:
 ```sh
-docker logs vehicle && \
-docker logs maintenance && \
-docker logs valet && \
-docker logs authentication
+docker logs vehicle
 ```
 Enter a running container example:
 ```sh
 docker exec -i -t "vehicle" /bin/bash
 ```
 _Use a 'ctrl-p', 'cntr-q' to exit vs. 'exit' to keep running_
+
+Test if (4) services are running within containers:
+```sh
+curl http://localhost:8581/vehicles/utils/ping.json && echo && \
+curl http://localhost:8583/maintenances/utils/ping && echo && \
+curl http://localhost:8585/valets/utils/ping && echo && \
+curl http://localhost:8587/clients/utils/ping.json && echo
+
+```
+Basic health ckeck for service(s) should return a boolean value of 'true'.
 
 #### Cleaning Up ####
 __CAUTION!__  

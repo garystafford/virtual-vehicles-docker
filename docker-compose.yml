@@ -5,7 +5,7 @@
 # url:         https://github.com/garystafford/virtual-vehicles-docker  
 # description: Builds (4) images, pulls (2) images, and builds (9) containers,
 #              for the Virtual-Vehicles Java microservices example REST API
-# to run:      docker-compose up -d 
+# to run:      docker-compose -p virtualvehicles up -d
 #
 ########################################################################
 
@@ -31,32 +31,32 @@ authentication:
   ports:
    - "8587:8587"
   links:
-   - graphite:graphite
-   - mongoAuthentication:mongoAuthentication
+   - graphite
+   - mongoAuthentication
 
 valet:
   build: valet/
   ports:
    - "8585:8585"
   links:
-   - graphite:graphite
-   - mongoValet:mongoValet
-   - authentication:authentication
+   - graphite
+   - mongoValet
+   - authentication
 
 maintenance:
   build: maintenance/
   ports:
    - "8583:8583"
   links:
-   - graphite:graphite
-   - mongoMaintenance:mongoMaintenance
-   - authentication:authentication
+   - graphite
+   - mongoMaintenance
+   - authentication
 
 vehicle:
   build: vehicle/
   ports:
    - "8581:8581"
   links:
-   - graphite:graphite
-   - mongoVehicle:mongoVehicle
-   - authentication:authentication
+   - graphite
+   - mongoVehicle
+   - authentication
