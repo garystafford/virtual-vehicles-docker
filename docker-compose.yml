@@ -16,36 +16,36 @@ mongoVehicle:
   image: mongo:latest
 
 authentication:
-  image: virtual-vehicles:authentication
+  build: virtual-vehicles-authentication-docker/
   ports:
    - "8587:8587"
   links:
-    - graphite:graphite
-    - mongoAuthentication:mongoAuthentication
+   - graphite:graphite
+   - mongoAuthentication:mongoAuthentication
 
 valet:
-  image: virtual-vehicles:valet
+  build: virtual-vehicles-valet-docker/
   ports:
    - "8585:8585"
   links:
-    - graphite:graphite
-    - mongoValet:mongoValet
-    - authentication:authentication
+   - graphite:graphite
+   - mongoValet:mongoValet
+   - authentication:authentication
 
 maintenance:
-  image: virtual-vehicles:valet
+  build: virtual-vehicles-maintenance-docker/
   ports:
    - "8583:8583"
   links:
-    - graphite:graphite
-    - mongoMaintenance:mongoMaintenance
-    - authentication:authentication
+   - graphite:graphite
+   - mongoMaintenance:mongoMaintenance
+   - authentication:authentication
 
 vehicle:
-  image: virtual-vehicles:vehicle
+  build: virtual-vehicles-vehicle-docker/
   ports:
    - "8581:8581"
   links:
-    - graphite:graphite
-    - mongoVehicle:mongoVehicle
-    - authentication:authentication
+   - graphite:graphite
+   - mongoVehicle:mongoVehicle
+   - authentication:authentication
