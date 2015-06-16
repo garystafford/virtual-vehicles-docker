@@ -12,14 +12,17 @@ The Virtual-Vehicles microservice's base images are all built with a similar ```
 FROM java:8u45-jdk
 MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
-RUN apt-get -y update && \
+ENV REFRESHED_AT 2015-06-15
+
+RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
+apt-get -y update && \
 apt-get -y upgrade && \
 apt-get -y dist-upgrade && \
 apt-get -y clean && \
 apt-get -y autoclean && \
 apt-get -y autoremove
 
-COPY ./virtual-vehicles-vehicle-docker/artifacts /usr/share/java/virtual-vehicles
+COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
 
 EXPOSE 8581
@@ -51,8 +54,8 @@ docker run -d --name mongo_authentication mongo
 ```
 Build each Virtual-Vehicle image and start each container (_containers 6-9 of 9_):
 ```sh
-docker build -t virtual-vehicles:authentication \
--f virtual-vehicles-authentication-docker/Dockerfile . && \
+cd authentication && \
+docker build -t virtual-vehicles:authentication . && \
 docker run -d \
 -p 8587:8587 \
 --name authentication \
@@ -61,8 +64,8 @@ docker run -d \
 virtual-vehicles:authentication
 ```
 ```sh
-docker build -t virtual-vehicles:vehicle \
--f virtual-vehicles-vehicle-docker/Dockerfile . && \
+cd ../vehicle && \
+docker build -t virtual-vehicles:vehicle . && \
 docker run -d \
 -p 8581:8581 \
 --name vehicle \
@@ -72,8 +75,8 @@ docker run -d \
 virtual-vehicles:vehicle
 ```
 ```sh
-docker build -t virtual-vehicles:maintenance \
--f virtual-vehicles-maintenance-docker/Dockerfile . && \
+cd ../maintenance && \
+docker build -t virtual-vehicles:maintenance . && \
 docker run -d \
 -p 8583:8583 \
 --name maintenance \
@@ -83,15 +86,16 @@ docker run -d \
 virtual-vehicles:maintenance
 ```
 ```sh
-docker build -t virtual-vehicles:valet \
--f virtual-vehicles-valet-docker/Dockerfile . && \
+cd ../valet && \
+docker build -t virtual-vehicles:valet . && \
 docker run -d \
 -p 8585:8585 \
 --name valet \
 --link graphite:graphite \
 --link mongo_valet:mongo_valet \
 --link authentication:authentication \
-virtual-vehicles:valet
+virtual-vehicles:valet && \
+cd ..
 ```
 _You can combine all (4) commands if you want to save time_
 
