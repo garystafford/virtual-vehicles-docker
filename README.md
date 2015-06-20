@@ -116,7 +116,7 @@ Enter a running container example:
 ```sh
 docker exec -i -t "vehicle" /bin/bash
 ```
-_Use a 'ctrl-p', 'cntr-q' to exit vs. 'exit' to keep running_
+_Use a 'ctrl-p', 'ctrl-q' to exit vs. 'exit' to keep running_
 
 Test if (4) services are running within containers:
 ```sh
@@ -126,7 +126,7 @@ curl http://localhost:8585/valets/utils/ping && echo && \
 curl http://localhost:8587/clients/utils/ping.json && echo
 
 ```
-Basic health ckeck for service(s) should return a boolean value of 'true'.
+Basic health check for service(s) should return a boolean value of 'true'.
 
 #### Cleaning Up ####
 __CAUTION!__  
