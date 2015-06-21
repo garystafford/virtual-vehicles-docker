@@ -39,10 +39,10 @@ echo
 echo "TEST: POST request should return a new client in the response body with an 'id'"
 url="http://${hostname}:8587/clients"
 echo ${url}
-curl -X POST -H "Cache-Control: no-cache" -d '{
-    "application": "Test API Client",
-    "secret": "pbZCmrFSBqkYtMh"
-}' --url "${url}" \
+curl -X POST -H "Cache-Control: no-cache" -d "{
+    \"application\": \"${application}\",
+    \"secret\": \"${secret}\"
+}" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "${RED}RESULT: fail${NC}" && exit 1
 echo "${GREEN}RESULT: pass${NC}"
@@ -51,10 +51,10 @@ echo
 echo "SETUP: Get the new client's apiKey for next test"
 url="http://${hostname}:8587/clients"
 echo ${url}
-apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d '{
-    "application": "Test API Client",
-    "secret": "pbZCmrFSBqkYtMh"
-}' --url "${url}" \
+apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d "{
+    \"application\": \"${application}\",
+    \"secret\": \"${secret}\"
+}" --url "${url}" \
 | grep -o '"apiKey":"[a-zA-Z0-9]\{24\}"' \
 | grep -o '[a-zA-Z0-9]\{24\}' \
 | sed -e 's/^"//'  -e 's/"$//')
