@@ -206,7 +206,7 @@ Note the short pause I have inserted before running the tests. Docker Compose d
 
 <a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-3.png"><img class="aligncenter wp-image-5679 size-large" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-3.png?w=620" alt="Docker Compose Config 3" width="620" height="408" /></a>
 
-[code language="bash" title="Pause for Container Start-Up"]
+```bash
 sleep 15
 sh tests.sh -v
 ```
