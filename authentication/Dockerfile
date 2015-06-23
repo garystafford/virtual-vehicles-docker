@@ -3,10 +3,9 @@
 FROM java:8u45-jdk
 MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
-ENV REFRESHED_AT 2015-06-15
+ENV REFRESHED_AT 2015-06-23
 
-RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && \
-apt-get -y update && \
+RUN apt-get -y update && \
 apt-get -y upgrade && \
 apt-get -y dist-upgrade && \
 apt-get -y clean && \
