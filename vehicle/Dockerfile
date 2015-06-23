@@ -5,7 +5,7 @@ MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
 ENV REFRESHED_AT 2015-06-23
 
-RUN sed apt-get -y update && \
+RUN apt-get -y update && \
 apt-get -y upgrade && \
 apt-get -y dist-upgrade && \
 apt-get -y clean && \
