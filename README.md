@@ -339,7 +339,7 @@ echo "RESULT: pass"
 ```
 Since these tests are just a bash script, they can also be ran separately from the command line, as in the screen grab below. The output, except for the colored text, is identical to what appears in the Jenkins console output.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/running-integration-tests.png"><img class="aligncenter wp-image-5714 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/tests-from-terminal-prompt.png" alt="Tests from Terminal Prompt" width="656" height="452" /></a>
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/running-integration-tests.png"><img class="aligncenter wp-image-5714 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/running-integration-tests.png" alt="Tests from Terminal Prompt" width="656" height="452" /></a>
 <h3>Tear Down</h3>
 Once the integration tests have completed, we 'tear down' the project by removing the Virtual-Vehicle images and containers. We simply repeat the first commands we ran at the start of the Jenkins build phase. You could choose to remove the tear down step, and use this job as a way to simply build and start your multi-container application.
 
