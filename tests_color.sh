@@ -15,15 +15,21 @@ echo --- Integration Tests ---
 echo
 
 ### VARIABLES ###
-hostname="localhost"
-application="Test API Client"
-secret="pbZCmrFSBqkYtMh"
-
-# http://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+# colorize output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m' # no color
+
+hostname="localhost"
+application="Test API Client $(date +%s)" # randomized
+secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
+
+echo "${CYAN}hostname: ${hostname}${NC}"
+echo "${CYAN}application: ${application}${NC}"
+echo "${CYAN}secret: ${secret}${NC}"
+echo
+
 
 ### TESTS ###
 echo "TEST: GET request should return 'true' in the response body"
@@ -36,6 +42,7 @@ curl -X GET -H 'Accept: application/json; charset=UTF-8' \
 echo "${GREEN}RESULT: pass${NC}"
 echo
 
+
 echo "TEST: POST request should return a new client in the response body with an 'id'"
 url="http://${hostname}:8587/clients"
 echo ${url}
@@ -47,6 +54,7 @@ curl -X POST -H "Cache-Control: no-cache" -d "{
 [ "$?" -ne 0 ] && echo "${RED}RESULT: fail${NC}" && exit 1
 echo "${GREEN}RESULT: pass${NC}"
 echo
+
 
 echo "SETUP: Get the new client's apiKey for next test"
 url="http://${hostname}:8587/clients"
@@ -61,6 +69,7 @@ apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d "{
 echo ${CYAN}apiKey: ${apiKey}${NC}
 echo
 
+
 echo "TEST: GET request should return a new jwt in the response body"
 url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
@@ -71,6 +80,7 @@ curl -X GET -H "Cache-Control: no-cache" \
 echo "${GREEN}RESULT: pass${NC}"
 echo
 
+
 echo "SETUP: Get a new jwt using the new client for the next test"
 url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
@@ -80,6 +90,7 @@ jwt=$(curl -X GET -H "Cache-Control: no-cache" \
 | sed -e 's/^"//'  -e 's/"$//')
 echo ${CYAN}jwt: ${jwt}${NC}
 echo
+
 
 echo "TEST: POST request should return a new vehicle in the response body with an 'id'"
 url="http://${hostname}:8581/vehicles"
@@ -99,6 +110,7 @@ curl -X POST -H "Cache-Control: no-cache" \
 echo "${GREEN}RESULT: pass${NC}"
 echo
 
+
 echo "SETUP: Get id from new vehicle for the next test"
 url="http://${hostname}:8581/vehicles?filter=make::Test|model::Foo&limit=1"
 echo ${url}
@@ -111,6 +123,7 @@ id=$(curl -X GET -H "Cache-Control: no-cache" \
 | sed -e 's/^"//'  -e 's/"$//')
 echo ${CYAN}vehicle id: ${id}${NC}
 echo
+
 
 echo "TEST: GET request should return a vehicle in the response body with the requested 'id'"
 url="http://${hostname}:8581/vehicles/${id}"
