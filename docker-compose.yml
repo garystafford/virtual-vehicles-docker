@@ -60,3 +60,14 @@ vehicle:
    - graphite
    - mongoVehicle
    - authentication
+
+nginx:
+  build: nginx/
+  ports:
+   - "8580:8580"
+  links:
+   - graphite
+   - authentication
+   - maintenance
+   - valet
+   - vehicle
