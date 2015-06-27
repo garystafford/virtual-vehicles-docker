@@ -3,9 +3,9 @@
 # title:       Docker Compose YAML file for Virtual-Vehicles Project
 # author:      Gary A. Stafford (https://programmaticponderings.com)
 # url:         https://github.com/garystafford/virtual-vehicles-docker  
-# description: Builds (5) images, pulls (3) images, and builds (10) containers,
+# description: Pulls (4) images, builds (5) images, and builds (10) containers,
 #              for the Virtual-Vehicles Java microservices example REST API
-# to run:      docker-compose -p virtualvehicles up -d
+# to run:      docker-compose -p your_project_name_here up -d
 #
 ########################################################################
 

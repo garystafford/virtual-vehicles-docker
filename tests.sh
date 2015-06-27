@@ -17,7 +17,6 @@ echo
 
 ### VARIABLES ###
 hostname=${1-'localhost'} # use input param or default to localhost
-nginx_port=80
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
 
@@ -29,7 +28,7 @@ echo
 
 ### TESTS ###
 echo "TEST: GET request should return 'true' in the response body"
-url="http://${hostname}:${nginx_port}/vehicles/utils/ping.json"
+url="http://${hostname}/vehicles/utils/ping.json"
 echo ${url}
 curl -X GET -H 'Accept: application/json; charset=UTF-8' \
 --url "${url}" \
@@ -40,7 +39,7 @@ echo
 
 
 echo "TEST: POST request should return a new client in the response body with an 'id'"
-url="http://${hostname}:${nginx_port}/clients"
+url="http://${hostname}/clients"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" -d "{
     \"application\": \"${application}\",
@@ -53,7 +52,7 @@ echo
 
 
 echo "SETUP: Get the new client's apiKey for next test"
-url="http://${hostname}:${nginx_port}/clients"
+url="http://${hostname}/clients"
 echo ${url}
 apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d "{
     \"application\": \"${application}\",
@@ -67,7 +66,7 @@ echo
 
 
 echo "TEST: GET request should return a new jwt in the response body"
-url="http://${hostname}:${nginx_port}/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
@@ -78,7 +77,7 @@ echo
 
 
 echo "SETUP: Get a new jwt using the new client for the next test"
-url="http://${hostname}:${nginx_port}/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 jwt=$(curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
@@ -89,7 +88,7 @@ echo
 
 
 echo "TEST: POST request should return a new vehicle in the response body with an 'id'"
-url="http://${hostname}:${nginx_port}/vehicles"
+url="http://${hostname}/vehicles"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -108,7 +107,7 @@ echo
 
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}:${nginx_port}/vehicles?filter=make::Test|model::Foo&limit=1"
+url="http://${hostname}/vehicles?filter=make::Test|model::Foo&limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -122,11 +121,47 @@ echo
 
 
 echo "TEST: GET request should return a vehicle in the response body with the requested 'id'"
-url="http://${hostname}:${nginx_port}/vehicles/${id}"
+url="http://${hostname}/vehicles/${id}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
 --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+echo "TEST: POST request should return a new maintenance record in the response body with an 'id'"
+url="http://${hostname}/maintenances"
+echo ${url}
+curl -X POST -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+    \"vehicleId\": \"${id}\",
+    \"serviceDateTime\": \"2015-27-00T15:00:00.400Z\",
+    \"mileage\": 1000,
+    \"type\": \"Test Maintenance\",
+    \"notes\": \"This is a test notes.\"
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+echo "TEST: POST request should return a new valet transaction in the response body with an 'id'"
+url="http://${hostname}/valets"
+echo ${url}
+curl -X POST -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+    \"vehicleId\": \"${id}\",
+    \"dateTimeIn\": \"2015-27-00T15:00:00.400Z\",
+    \"parkingLot\": \"Test Parking Ramp\",
+    \"parkingSpot\": 10,
+    \"notes\": \"This is a test notes.\"
+}" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
