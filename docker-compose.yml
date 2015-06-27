@@ -56,7 +56,7 @@ vehicle:
 nginx:
   build: nginx/
   ports:
-   - "8580:8580"
+   - "80:80"
   links:
    - authentication
    - maintenance
