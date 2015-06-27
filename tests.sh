@@ -17,7 +17,7 @@ echo
 
 ### VARIABLES ###
 hostname=${1-'localhost'} # use input param or default to localhost
-nginx_port=8580
+nginx_port=80
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
 
