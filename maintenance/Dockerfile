@@ -15,7 +15,7 @@ apt-get -y autoremove
 COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
 
-EXPOSE 8583
+#EXPOSE 8583
 
 ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Maintenance-1.0-SNAPSHOT.jar", "prod", "com.example.maintenance.Main"]
 CMD [""]

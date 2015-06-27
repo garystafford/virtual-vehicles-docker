@@ -7,8 +7,8 @@
 # url:            https://github.com/garystafford/virtual-vehicles-docker  
 # description:    Performs integration tests on the Virtual-Vehicles
 #                 microservices
-# to run:         sh tests_color.sh -v
-# docker-machine: sh tests_color.sh $(docker-machine ip test) -v
+# to run:         sh tests_color.sh
+# docker-machine: sh tests_color.sh $(docker-machine ip test)
 #
 ########################################################################
 
@@ -23,10 +23,12 @@ CYAN='\033[0;36m'
 NC='\033[0m' # no color
 
 hostname=${1-'localhost'} # use input param or default to localhost
+nginx_port=8580
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
 
 echo "${CYAN}hostname: ${hostname}${NC}"
+echo "${CYAN}nginx_port: ${nginx_port}${NC}"
 echo "${CYAN}application: ${application}${NC}"
 echo "${CYAN}secret: ${secret}${NC}"
 echo
@@ -34,7 +36,7 @@ echo
 
 ### TESTS ###
 echo "TEST: GET request should return 'true' in the response body"
-url="http://${hostname}:8581/vehicles/utils/ping.json"
+url="http://${hostname}:${nginx_port}/vehicles/utils/ping.json"
 echo ${url}
 curl -X GET -H 'Accept: application/json; charset=UTF-8' \
 --url "${url}" \
@@ -45,7 +47,7 @@ echo
 
 
 echo "TEST: POST request should return a new client in the response body with an 'id'"
-url="http://${hostname}:8587/clients"
+url="http://${hostname}:${nginx_port}/clients"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" -d "{
     \"application\": \"${application}\",
@@ -58,7 +60,7 @@ echo
 
 
 echo "SETUP: Get the new client's apiKey for next test"
-url="http://${hostname}:8587/clients"
+url="http://${hostname}:${nginx_port}/clients"
 echo ${url}
 apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d "{
     \"application\": \"${application}\",
@@ -72,7 +74,7 @@ echo
 
 
 echo "TEST: GET request should return a new jwt in the response body"
-url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}:${nginx_port}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
@@ -83,7 +85,7 @@ echo
 
 
 echo "SETUP: Get a new jwt using the new client for the next test"
-url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}:${nginx_port}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 jwt=$(curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
@@ -94,7 +96,7 @@ echo
 
 
 echo "TEST: POST request should return a new vehicle in the response body with an 'id'"
-url="http://${hostname}:8581/vehicles"
+url="http://${hostname}:${nginx_port}/vehicles"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -113,7 +115,7 @@ echo
 
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}:8581/vehicles?filter=make::Test|model::Foo&limit=1"
+url="http://${hostname}:${nginx_port}/vehicles?filter=make::Test|model::Foo&limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -127,7 +129,7 @@ echo
 
 
 echo "TEST: GET request should return a vehicle in the response body with the requested 'id'"
-url="http://${hostname}:8581/vehicles/${id}"
+url="http://${hostname}:${nginx_port}/vehicles/${id}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
