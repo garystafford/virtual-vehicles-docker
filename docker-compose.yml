@@ -5,7 +5,7 @@
 # url:         https://github.com/garystafford/virtual-vehicles-docker  
 # description: Pulls (4) images, builds (5) images, and builds (10) containers,
 #              for the Virtual-Vehicles Java microservices example REST API
-# to run:      docker-compose -p your_project_name_here up -d
+# to run:      docker-compose -p <your_project_name_here> up -d
 #
 ########################################################################
 
