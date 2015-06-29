@@ -31,34 +31,49 @@ authentication:
   links:
    - graphite
    - mongoAuthentication
+   - "ambassador:nginx"
+  expose:
+   - "8587"
 
 valet:
   build: valet/
   links:
    - graphite
    - mongoValet
-   - nginx
+   - "ambassador:nginx"
+  expose:
+   - "8585"
 
 maintenance:
   build: maintenance/
   links:
    - graphite
    - mongoMaintenance
-   - nginx
+   - "ambassador:nginx"
+  expose:
+   - "8583"
 
 vehicle:
   build: vehicle/
   links:
    - graphite
    - mongoVehicle
-   - nginx
+   - "ambassador:nginx"
+  expose:
+   - "8581"
 
 nginx:
   build: nginx/
   ports:
    - "80:80"
   links:
-   - authentication
-   - maintenance
-   - valet
-   - vehicle
+   - "ambassador:vehicle"
+   - "ambassador:valet"
+   - "ambassador:authentication"
+   - "ambassador:maintenance"
+
+ambassador:
+  image: cpuguy83/docker-grand-ambassador
+  volumes:
+   - "/var/run/docker.sock:/var/run/docker.sock"
+  command: "-name jenkins_nginx_1 -name jenkins_authentication_1 -name jenkins_maintenance_1 -name jenkins_valet_1 -name jenkins_vehicle_1"
