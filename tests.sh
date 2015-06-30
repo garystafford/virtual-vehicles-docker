@@ -19,10 +19,14 @@ echo
 hostname=${1-'localhost'} # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
+make="Test"
+model="Foo"
 
 echo hostname: ${hostname}
 echo application: ${application}
 echo secret: ${secret}
+echo make: ${make}
+echo model: ${model}
 echo
 
 
@@ -92,14 +96,14 @@ url="http://${hostname}/vehicles"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
--d '{
-    "year": 2015,
-    "make": "Test",
-    "model": "Foo",
-    "color": "White",
-    "type": "Sedan",
-    "mileage": 250
-}' --url "${url}" \
+-d "{
+    \"year\": 2015,
+    \"make\": \"${make}\",
+    \"model\": \"${model}\",
+    \"color\": \"White\",
+    \"type\": \"Sedan\",
+    \"mileage\": 250
+}" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
@@ -107,7 +111,7 @@ echo
 
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}/vehicles?filter=make::Test|model::Foo&limit=1"
+url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \

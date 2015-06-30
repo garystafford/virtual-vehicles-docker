@@ -25,11 +25,15 @@ NC='\033[0m' # no color
 hostname=${1-'localhost'} # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
+make="Test"
+model="Foo"
 
 echo "${CYAN}hostname: ${hostname}${NC}"
 echo "${CYAN}nginx_port: ${nginx_port}${NC}"
 echo "${CYAN}application: ${application}${NC}"
 echo "${CYAN}secret: ${secret}${NC}"
+echo "${CYAN}make: ${make}${NC}"
+echo "${CYAN}model: ${model}${NC}"
 echo
 
 
@@ -99,14 +103,14 @@ url="http://${hostname}/vehicles"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
--d '{
-    "year": 2015,
-    "make": "Test",
-    "model": "Foo",
-    "color": "White",
-    "type": "Sedan",
-    "mileage": 250
-}' --url "${url}" \
+-d "{
+    \"year\": 2015,
+    \"make\": \"${make}\",
+    \"model\": \"${model}\",
+    \"color\": \"White\",
+    \"type\": \"Sedan\",
+    \"mileage\": 250
+}" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "${RED}RESULT: fail${NC}" && exit 1
 echo "${GREEN}RESULT: pass${NC}"
@@ -114,7 +118,7 @@ echo
 
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}/vehicles?filter=make::Test|model::Foo&limit=1"
+url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
