@@ -77,3 +77,18 @@ ambassador:
   volumes:
    - "/var/run/docker.sock:/var/run/docker.sock"
   command: "-name jenkins_nginx_1 -name jenkins_authentication_1 -name jenkins_maintenance_1 -name jenkins_valet_1 -name jenkins_vehicle_1"
+
+elk:
+  image: willdurand/elk
+  ports:
+    - "8080:80"
+  volumes:
+    - "/home/docker/logstash:/etc/logstash"
+
+logspout:
+  image: gliderlabs/logspout:latest
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  links:
+    - elk
+  command: "syslog://elk:5000"
