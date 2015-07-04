@@ -14,23 +14,31 @@ graphite:
   ports:
    - "8500:80"
 
-mongoAuthentication:
-  image: mongo:latest
+mongoauthentication:
+  build: mongo/
+#  volumes:
+#    - "/home/docker/data:/data/db"
 
-mongoValet:
-  image: mongo:latest
+mongovalet:
+  build: mongo/
+#  volumes:
+#    - "/home/docker/data:/data/db"
 
-mongoMaintenance:
-  image: mongo:latest
+mongomaintenance:
+  build: mongo/
+#  volumes:
+#    - "/home/docker/data:/data/db"
 
-mongoVehicle:
-  image: mongo:latest
+mongovehicle:
+  build: mongo/
+#  volumes:
+#    - "/home/docker/data:/data/db"
 
 authentication:
   build: authentication/
   links:
    - graphite
-   - mongoAuthentication
+   - mongoauthentication
    - "ambassador:nginx"
   expose:
    - "8587"
@@ -39,7 +47,7 @@ valet:
   build: valet/
   links:
    - graphite
-   - mongoValet
+   - mongovalet
    - "ambassador:nginx"
   expose:
    - "8585"
@@ -48,7 +56,7 @@ maintenance:
   build: maintenance/
   links:
    - graphite
-   - mongoMaintenance
+   - mongomaintenance
    - "ambassador:nginx"
   expose:
    - "8583"
@@ -57,7 +65,7 @@ vehicle:
   build: vehicle/
   links:
    - graphite
-   - mongoVehicle
+   - mongovehicle
    - "ambassador:nginx"
   expose:
    - "8581"
@@ -86,9 +94,11 @@ elk:
     - "/home/docker/logstash:/etc/logstash"
 
 logspout:
-  image: gliderlabs/logspout:latest
+  build: logspout/
   volumes:
     - "/var/run/docker.sock:/tmp/docker.sock"
   links:
     - elk
-  command: "syslog://elk:5000"
+  command: "logstash://elk:5000"
+  environment:
+    - ROUTE_URIS=logstash://elk:5000
