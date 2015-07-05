@@ -90,6 +90,11 @@ elk:
   image: willdurand/elk
   ports:
     - "8080:80"
+    - "5000:5000"
+    - "5000:5000/udp"
+    - "9200:9200"
+  expose:
+   - "5000"
   volumes:
     - "/home/docker/logstash:/etc/logstash"
 
@@ -99,6 +104,6 @@ logspout:
     - "/var/run/docker.sock:/tmp/docker.sock"
   links:
     - elk
-  command: "logstash://elk:5000"
-  environment:
-    - ROUTE_URIS=logstash://elk:5000
+  command: "syslog://elk:5000"
+  #environment:
+  #  - ROUTE_URIS=logstash://elk:5000
