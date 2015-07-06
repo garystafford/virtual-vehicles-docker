@@ -9,11 +9,6 @@
 #
 ########################################################################
 
-graphite:
-  image: hopsoft/graphite-statsd:latest
-  ports:
-   - "8500:80"
-
 mongoauthentication:
   build: mongo/
 #  volumes:
@@ -42,6 +37,7 @@ authentication:
    - "ambassador:nginx"
   expose:
    - "8587"
+  #log_driver: "syslog"
 
 valet:
   build: valet/
@@ -69,6 +65,11 @@ vehicle:
    - "ambassador:nginx"
   expose:
    - "8581"
+
+graphite:
+  image: hopsoft/graphite-statsd:latest
+  ports:
+   - "8500:80"
 
 nginx:
   build: nginx/
@@ -104,6 +105,8 @@ logspout:
     - "/var/run/docker.sock:/tmp/docker.sock"
   links:
     - elk
-  command: "syslog://elk:5000"
+  ports:
+   - "8000:80"
+  command: "logstash://elk:5000"
   #environment:
   #  - ROUTE_URIS=logstash://elk:5000
