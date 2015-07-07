@@ -37,7 +37,6 @@ authentication:
    - "ambassador:nginx"
   expose:
    - "8587"
-  #log_driver: "syslog"
 
 valet:
   build: valet/
@@ -107,6 +106,6 @@ logspout:
     - elk
   ports:
    - "8000:80"
-  command: "logstash://elk:5000"
-  #environment:
-  #  - ROUTE_URIS=logstash://elk:5000
+  #command: "logstash://elk:5000"
+  environment:
+    - ROUTE_URIS=logstash://elk:5000

@@ -12,6 +12,10 @@ apt-get -y clean && \
 apt-get -y autoclean && \
 apt-get -y autoremove
 
+
+RUN touch /var/log/virtual-maintenance.log && \
+ln -sf /dev/stdout /var/log/virtual-maintenance.log
+
 COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
 
