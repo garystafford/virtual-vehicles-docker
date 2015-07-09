@@ -1,6 +1,7 @@
 # Virtual-Vehicles Maintenance microservice Dockerfile
 
 FROM java:8u45-jdk
+
 MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
 ENV REFRESHED_AT 2015-06-23

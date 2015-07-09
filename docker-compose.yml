@@ -87,7 +87,8 @@ ambassador:
   command: "-name jenkins_nginx_1 -name jenkins_authentication_1 -name jenkins_maintenance_1 -name jenkins_valet_1 -name jenkins_vehicle_1"
 
 elk:
-  image: willdurand/elk
+  build: elk/
+  #image: willdurand/elk
   ports:
     - "8080:80"
     - "5000:5000"
@@ -95,8 +96,8 @@ elk:
     - "9200:9200"
   expose:
    - "5000"
-  volumes:
-    - "/home/docker/logstash:/etc/logstash"
+  #volumes:
+  #  - "/home/docker/logstash:/etc/logstash"
 
 logspout:
   build: logspout/
