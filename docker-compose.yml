@@ -88,7 +88,6 @@ ambassador:
 
 elk:
   build: elk/
-  #image: willdurand/elk
   ports:
     - "8080:80"
     - "5000:5000"
@@ -96,8 +95,6 @@ elk:
     - "9200:9200"
   expose:
    - "5000"
-  #volumes:
-  #  - "/home/docker/logstash:/etc/logstash"
 
 logspout:
   build: logspout/
