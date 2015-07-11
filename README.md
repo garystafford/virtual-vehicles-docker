@@ -93,7 +93,7 @@ The YAML file directs Docker Compose to pull and build the required Docker im
 # url: https://github.com/garystafford/virtual-vehicles-docker
 # description: Pulls (5) images, builds (5) images, and builds (11) containers,
 # for the Virtual-Vehicles Java microservices example REST API
-# to run: docker-compose -p &lt;your_project_name_here&gt; up -d
+# to run: docker-compose -p <your_project_name_here> up -d
 #
 ########################################################################
 
@@ -223,7 +223,7 @@ Another change since the last post, the project now uses the open source version
 
 ```bash
 http://192.168.99.100/vehicles/utils/ping.json
-http://192.168.99.100/jwts?apiKey=Z1nXG8JGKwvGlzQgPLwQdndW&amp;secret=ODc4OGNiNjE5ZmI
+http://192.168.99.100/jwts?apiKey=Z1nXG8JGKwvGlzQgPLwQdndW&secret=ODc4OGNiNjE5ZmI
 http://192.168.99.100/vehicles/558f3042e4b0e562c03329ad
 ```
 
@@ -267,7 +267,7 @@ url="http://${hostname}/vehicles/utils/ping.json"
 echo ${url}
 curl -X GET -H 'Accept: application/json; charset=UTF-8' \
 --url "${url}" \
-| grep true &gt; /dev/null
+| grep true > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
@@ -279,7 +279,7 @@ curl -X POST -H "Cache-Control: no-cache" -d "{
 \"application\": \"${application}\",
 \"secret\": \"${secret}\"
 }" --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
@@ -298,17 +298,17 @@ echo apiKey: ${apiKey}
 echo
 
 echo "TEST: GET request should return a new jwt in the response body"
-url="http://${hostname}/jwts?apiKey=${apiKey}&amp;secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
-| grep '[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}' &gt; /dev/null
+| grep '[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
 
 echo "SETUP: Get a new jwt using the new client for the next test"
-url="http://${hostname}/jwts?apiKey=${apiKey}&amp;secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&secret=${secret}"
 echo ${url}
 jwt=$(curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
@@ -330,13 +330,13 @@ curl -X POST -H "Cache-Control: no-cache" \
 \"type\": \"Sedan\",
 \"mileage\": 250
 }" --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&amp;limit=1"
+url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -354,7 +354,7 @@ echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
 --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
@@ -371,7 +371,7 @@ curl -X POST -H "Cache-Control: no-cache" \
 \"type\": \"Test Maintenance\",
 \"notes\": \"This is a test notes.\"
 }" --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
@@ -388,7 +388,7 @@ curl -X POST -H "Cache-Control: no-cache" \
 \"parkingSpot\": 10,
 \"notes\": \"This is a test notes.\"
 }" --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo
@@ -408,22 +408,22 @@ Below is an abridged sample of what the Jenkins CI console output will look like
 ```text
 Started by user anonymous
 Building in workspace /var/lib/jenkins/jobs/Virtual-Vehicles_Docker_Machine/workspace
-&gt; git rev-parse --is-inside-work-tree # timeout=10
+> git rev-parse --is-inside-work-tree # timeout=10
 Fetching changes from the remote Git repository
-&gt; git config remote.origin.url https://github.com/garystafford/virtual-vehicles-docker.git # timeout=10
+> git config remote.origin.url https://github.com/garystafford/virtual-vehicles-docker.git # timeout=10
 Fetching upstream changes from https://github.com/garystafford/virtual-vehicles-docker.git
-&gt; git --version # timeout=10
+> git --version # timeout=10
 using GIT_SSH to set credentials
 using .gitcredentials to set credentials
-&gt; git config --local credential.helper store --file=/tmp/git7588068314920923143.credentials # timeout=10
-&gt; git -c core.askpass=true fetch --tags --progress https://github.com/garystafford/virtual-vehicles-docker.git +refs/heads/*:refs/remotes/origin/*
-&gt; git config --local --remove-section credential # timeout=10
-&gt; git rev-parse refs/remotes/origin/master^{commit} # timeout=10
-&gt; git rev-parse refs/remotes/origin/origin/master^{commit} # timeout=10
+> git config --local credential.helper store --file=/tmp/git7588068314920923143.credentials # timeout=10
+> git -c core.askpass=true fetch --tags --progress https://github.com/garystafford/virtual-vehicles-docker.git +refs/heads/*:refs/remotes/origin/*
+> git config --local --remove-section credential # timeout=10
+> git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+> git rev-parse refs/remotes/origin/origin/master^{commit} # timeout=10
 Checking out Revision f473249f0f70290b75cb320909af1f57cdaf2aa5 (refs/remotes/origin/master)
-&gt; git config core.sparsecheckout # timeout=10
-&gt; git checkout -f f473249f0f70290b75cb320909af1f57cdaf2aa5
-&gt; git rev-list f473249f0f70290b75cb320909af1f57cdaf2aa5 # timeout=10
+> git config core.sparsecheckout # timeout=10
+> git checkout -f f473249f0f70290b75cb320909af1f57cdaf2aa5
+> git rev-list f473249f0f70290b75cb320909af1f57cdaf2aa5 # timeout=10
 [workspace] $ /bin/sh -xe /tmp/hudson8587699987350884629.sh
 
 + docker -v
@@ -485,8 +485,8 @@ b248a836546b        mongo:latest                       "/entrypoint.sh mong   3 
 0c94e6409afc        jenkins_valet                      "java -classpath .:c   4 seconds ago       Up 3 seconds        8585/tcp                                   jenkins_valet_1
 657f8432004b        jenkins_maintenance                "java -classpath .:c   5 seconds ago       Up 5 seconds        8583/tcp                                   jenkins_maintenance_1
 8ff6de1208e3        jenkins_authentication             "java -classpath .:c   7 seconds ago       Up 6 seconds        8587/tcp                                   jenkins_authentication_1
-c799d5f34a1c        hopsoft/graphite-statsd:latest     "/sbin/my_init"        12 minutes ago      Up 12 minutes       2003/tcp, 8125/udp, 0.0.0.0:8500-&gt;80/tcp   jenkins_graphite_1
-040872881b25        jenkins_nginx                      "nginx -g 'daemon of   25 minutes ago      Up 25 minutes       0.0.0.0:80-&gt;80/tcp, 443/tcp                jenkins_nginx_1
+c799d5f34a1c        hopsoft/graphite-statsd:latest     "/sbin/my_init"        12 minutes ago      Up 12 minutes       2003/tcp, 8125/udp, 0.0.0.0:8500->80/tcp   jenkins_graphite_1
+040872881b25        jenkins_nginx                      "nginx -g 'daemon of   25 minutes ago      Up 25 minutes       0.0.0.0:80->80/tcp, 443/tcp                jenkins_nginx_1
 c6a2dc726abc        mongo:latest                       "/entrypoint.sh mong   26 minutes ago      Up 26 minutes       27017/tcp                                  jenkins_mongoAuthentication_1
 db22a44239f4        mongo:latest                       "/entrypoint.sh mong   26 minutes ago      Up 26 minutes       27017/tcp                                  jenkins_mongoMaintenance_1
 d5fd655474ba        cpuguy83/docker-grand-ambassador   "/usr/bin/grand-amba   26 minutes ago      Up 26 minutes                                                  jenkins_ambassador_1
@@ -534,7 +534,7 @@ Dload  Upload   Total   Spent    Left  Speed
 apiKey: sv1CA9NdhmXh72NrGKBN3Abb
 
 TEST: GET request should return a new jwt in the response body
-http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&amp;secret=NGM5OTI5ODAxMTZ
+http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&secret=NGM5OTI5ODAxMTZ
 % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 Dload  Upload   Total   Spent    Left  Speed
 
@@ -543,7 +543,7 @@ Dload  Upload   Total   Spent    Left  Speed
 RESULT: pass
 
 SETUP: Get a new jwt using the new client for the next test
-http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&amp;secret=NGM5OTI5ODAxMTZ
+http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&secret=NGM5OTI5ODAxMTZ
 % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 Dload  Upload   Total   Spent    Left  Speed
 
@@ -562,7 +562,7 @@ Dload  Upload   Total   Spent    Left  Speed
 RESULT: pass
 
 SETUP: Get id from new vehicle for the next test
-http://192.168.99.100/vehicles?filter=make::Test|model::Foo&amp;limit=1
+http://192.168.99.100/vehicles?filter=make::Test|model::Foo&limit=1
 % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 Dload  Upload   Total   Spent    Left  Speed
 
