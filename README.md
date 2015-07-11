@@ -3,6 +3,7 @@
 <i>Continuously integrate and deploy and test a RestExpress microservices-based, multi-container, Java EE application to a virtual test environment, using Docker, Docker Hub, Docker Machine, Docker Compose, Jenkins CI, Maven, and VirtualBox.</i>
 
 <a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png"><img class="aligncenter wp-image-5833 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png" alt="Docker Machine with Ambassador" /></a>
+
 <h3>Introduction</h3>
 In the last <a href="https://programmaticponderings.wordpress.com/2015/06/22/continuous-integration-and-delivery-of-microservices-using-jenkins-ci-maven-and-docker-compose/">post</a>, we learned how to use <a href="https://jenkins-ci.org/">Jenkins CI</a>, <a href="https://maven.apache.org/">Maven</a>, and <a href="https://docs.docker.com/compose/">Docker Compose</a> to take a set of microservices all the way from source control on <a href="https://github.com/">GitHub</a>, to a fully tested and running set of integrated <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We built the microservices, <a href="https://docs.docker.com/docker/userguide/dockerimages/">Docker images</a>, and <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We deployed the containers directly onto the Jenkins CI Server machine. Finally, we performed <a href="https://en.wikipedia.org/wiki/Integration_testing">integration tests</a> to ensure the services were functioning as expected, within the containers.
 
@@ -10,8 +11,7 @@ In a more mature continuous delivery model, we would have deployed the running 
 
 <span style="color: #ff0000;">Update: All code for this post is available on <a style="color: #ff0000;" href="https://github.com/garystafford/virtual-vehicles-docker/releases/tag/v2.1.0">GitHub</a>, release version v2.1.0 on the 'master' branch (after running git clone ..., run a 'git checkout tags/v2.1.0' command).</span>
 
-<span style="color: #111111; font-family: Merriweather, Georgia, Times, serif; font-size: 1.3em;">Docker Machine</span>
-
+<h3>Docker Machine</h3>
 If you recall in the last <a href="https://programmaticponderings.wordpress.com/2015/06/22/continuous-integration-and-delivery-of-microservices-using-jenkins-ci-maven-and-docker-compose/">post</a>, after compiling and packaging the microservices, Jenkins was used to deploy the build artifacts to the Virtual-Vehicles Docker GitHub project, as shown below.
 
 <a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png"><img class="aligncenter wp-image-5721 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png" alt="Build and Deploy Results" /></a>
