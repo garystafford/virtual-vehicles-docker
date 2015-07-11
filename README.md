@@ -1,321 +1,342 @@
-<i>Continuously build, test, package and deploy a microservices-based, multi-container, Java EE application using Jenkins CI, Maven, Docker, and Docker Compose</i>
+###Continuous Integration and Delivery of Microservices using Jenkins CI, Docker Machine, and Docker Compose###
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/introdockercompose.png"><img class="aligncenter wp-image-5669 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/introdockercompose.png" alt="IntroDockerCompose" width="660" height="329" /></a>
-<h3>Previous Posts</h3>
-In the previous 3-part series, <a href="https://programmaticponderings.wordpress.com/2015/05/18/building-a-microservices-based-rest-api-with-restexpress-java-and-mongodb-part-1/">Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB</a>, we developed a set of Java EE-based microservices, which formed the Virtual-Vehicles REST API. In <a title="Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB: Part 1" href="https://programmaticponderings.wordpress.com/2015/05/18/building-a-microservices-based-rest-api-with-restexpress-java-and-mongodb-part-1/">Part One</a> of this series, we introduced the concepts of a RESTful API and microservices, using the vehicle-themed Virtual-Vehicles REST API example. In <a href="https://programmaticponderings.wordpress.com/2015/05/31/building-a-microservices-based-rest-api-with-restexpress-java-ee-and-mongodb-part-2/">Part Two</a>, we gained a basic understanding of how RestExpress works to build microservices, and discovered how to get the microservices example up and running. Lastly, in <a href="https://programmaticponderings.wordpress.com/2015/06/05/building-a-microservices-based-rest-api-with-restexpress-java-ee-and-mongodb-part-3/">Part Three</a>, we explored how to use tools such as Postman, along with the API documentation, to test our microservices.
+<i>Continuously integrate and deploy and test a RestExpress microservices-based, multi-container, Java EE application to a virtual test environment, using Docker, Docker Hub, Docker Machine, Docker Compose, Jenkins CI, Maven, and VirtualBox.</i>
+
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png"><img class="aligncenter wp-image-5833 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png" alt="Docker Machine with Ambassador" /></a>
 <h3>Introduction</h3>
-In this post, we will demonstrate how to use <a href="https://jenkins-ci.org/">Jenkins CI</a>, <a href="https://maven.apache.org/">Maven</a>, and <a href="https://docs.docker.com/compose/">Docker Compose</a> to take our set of microservices all the way from source control on <a href="https://github.com/">GitHub</a>, to a fully tested and running set of integrated and orchestrated <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We will build and test the microservices, <a href="https://docs.docker.com/docker/userguide/dockerimages/">Docker images</a>, and <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We will deploy the containers and perform <a href="https://en.wikipedia.org/wiki/Integration_testing">integration tests</a> to ensure the services are functioning as expected, within the containers. The milestones in our process will be:
-<ol>
-	<li><span style="text-decoration: underline;">Continuous Integration</span>: Using Jenkins CI and Maven, automatically compile, test, and package the individual microservices</li>
-	<li><span style="text-decoration: underline;">Deployment</span>: Using Jenkins, automatically deploy the build artifacts to the new Virtual-Vehicles Docker project</li>
-	<li><span style="text-decoration: underline;">Containerization</span>: Using Jenkins and Docker Compose, automatically build the Docker images and containers from the build artifacts and a set of Dockerfiles</li>
-	<li><span style="text-decoration: underline;">Integration Testing</span>: Using Jenkins, perform automated integration tests on the containerized services</li>
-	<li><span style="text-decoration: underline;">Tear Down</span>: Using Jenkins, automatically stop and remove the containers and images</li>
-</ol>
-For brevity, we will deploy the containers directly to the Jenkins CI Server, where they were built. In an upcoming post, I will demonstrate how to use the recently released <a href="https://docs.docker.com/machine/">Docker Machine</a> to host the containers within an isolated VM.
+In the last <a href="https://programmaticponderings.wordpress.com/2015/06/22/continuous-integration-and-delivery-of-microservices-using-jenkins-ci-maven-and-docker-compose/">post</a>, we learned how to use <a href="https://jenkins-ci.org/">Jenkins CI</a>, <a href="https://maven.apache.org/">Maven</a>, and <a href="https://docs.docker.com/compose/">Docker Compose</a> to take a set of microservices all the way from source control on <a href="https://github.com/">GitHub</a>, to a fully tested and running set of integrated <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We built the microservices, <a href="https://docs.docker.com/docker/userguide/dockerimages/">Docker images</a>, and <a href="https://docs.docker.com/articles/basics/">Docker containers</a>. We deployed the containers directly onto the Jenkins CI Server machine. Finally, we performed <a href="https://en.wikipedia.org/wiki/Integration_testing">integration tests</a> to ensure the services were functioning as expected, within the containers.
 
-All code for this post is available on <a href="https://github.com/garystafford/virtual-vehicles-docker/releases/tag/v1.0.0">GitHub</a>, release version 1.0.0.
-<h3>Build the Microservices</h3>
-In order to host the Virtual-Vehicles microservices, we must first compile the source code and produce build artifacts. In the case of the Virtual-Vehicles example, the build artifacts are a <a href="https://en.wikipedia.org/wiki/JAR_(file_format)">JAR file</a> and at least one environment-specific properties file. In <a href="https://programmaticponderings.wordpress.com/2015/05/31/building-a-microservices-based-rest-api-with-restexpress-java-ee-and-mongodb-part-2/">Part Two</a> of our previous series, we compiled and produced JAR files for our microservices from the command line using Maven.
+In a more mature continuous delivery model, we would have deployed the running containers to a fresh 'production-like' environment to be more accurately tested, not the Jenkins CI Server host machine. In this post, we will learn how to use the recently released <a href="https://docs.docker.com/machine/">Docker Machine</a> to create a fresh test environment in which to build and host our project's ten Docker containers. We will couple Docker Machine with Oracle's <a href="https://www.virtualbox.org/">VirtualBox</a>, <a href="https://jenkins-ci.org/">Jenkins CI,</a> and <a href="https://docs.docker.com/compose/">Docker Compose</a> to automatically build and test the services within their containers, within the virtual 'test' environment.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/builddeploy.png"><img class="aligncenter wp-image-5744 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/builddeploy.png" alt="Build and Deploy" width="594" height="523" /></a>
+<span style="color: #ff0000;">Update: All code for this post is available on <a style="color: #ff0000;" href="https://github.com/garystafford/virtual-vehicles-docker/releases/tag/v2.1.0">GitHub</a>, release version v2.1.0 on the 'master' branch (after running git clone ..., run a 'git checkout tags/v2.1.0' command).</span>
 
-To automatically build our Maven-based microservices project in this post, we will use Jenkins CI and the Jenkins <a href="https://wiki.jenkins-ci.org/display/JENKINS/Maven+Project+Plugin">Maven Project Plugin</a>. The Virtual-Vehicles microservices are bundled together into what Maven considers a <a href="http://books.sonatype.com/mvnex-book/reference/multimodule.html">multi-module project</a>, which is defined by a parent POM referring to one or more sub-modules. Using the concept of <a href="https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Example_3">project inheritance</a>, Jenkins will compile each of the four microservices from the project's single parent POM file. Note the four modules at the end of the <code>pom.xml</code> below, corresponding to each microservice.
+<span style="color: #111111; font-family: Merriweather, Georgia, Times, serif; font-size: 1.3em;">Docker Machine</span>
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+If you recall in the last <a href="https://programmaticponderings.wordpress.com/2015/06/22/continuous-integration-and-delivery-of-microservices-using-jenkins-ci-maven-and-docker-compose/">post</a>, after compiling and packaging the microservices, Jenkins was used to deploy the build artifacts to the Virtual-Vehicles Docker GitHub project, as shown below.
 
-    <name>Virtual-Vehicles API</name>
-    <description>Virtual-Vehicles API
-        https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Example_3
-    </description>
-    <url>https://github.com/garystafford/virtual-vehicle-demo</url>
-    <groupId>com.example</groupId>
-    <artifactId>Virtual-Vehicles-API</artifactId>
-    <version>1</version>
-    <packaging>pom</packaging>
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png"><img class="aligncenter wp-image-5721 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png" alt="Build and Deploy Results" /></a>
 
-    <modules>
-        <module>Maintenance</module>
-        <module>Valet</module>
-        <module>Vehicle</module>
-        <module>Authentication</module>
-    </modules>
-</project>
-```
-Below is the view of the four individual Maven modules, within the single Jenkins Maven job.
+We then used Jenkins, with the <a href="https://docs.docker.com/reference/commandline/cli/">Docker CLI</a> and the <a href="https://docs.docker.com/compose/cli/">Docker Compose CLI</a>, to automatically build and test the images and containers. This step will not change, however first we will use Docker Machine to automatically build a test environment, in which we will build the Docker images and containers.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/maven-modules-in-jenkins1.png"><img class="aligncenter wp-image-5727 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/maven-modules-in-jenkins1.png" alt="Maven Modules In Jenkins" width="660" height="409" /></a>
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png"><img class="aligncenter wp-image-5833 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-with-ambassador.png" alt="Docker Machine with Ambassador" /></a>
 
-Each microservice module contains a Maven POM files. The POM files use the <a href="http://maven.apache.org/plugins/maven-compiler-plugin/">Apache Maven Compiler Plugin</a> to compile code, and the <a href="https://maven.apache.org/plugins/maven-shade-plugin/">Apache Maven Shade Plugin</a> to create 'uber-jars' from the compiled code. The Shade plugin provides the capability to package the artifact in an uber-jar, including its dependencies. This will allow us to independently host the service in its own container, without external dependencies. Lastly, using the <a href="https://maven.apache.org/plugins/maven-resources-plugin/">Apache Maven Resources Plugin</a>, Maven will copy the environment properties files from the source directory to the 'target' directory, which contains the JAR file. To accomplish these Maven tasks, all Jenkins needs to do is a series of <a href="https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html">Maven life-cycle goals</a>: '<code>clean install package validate</code>'.
+I've copied and modified the second Jenkins job we used in the last post, as shown below. The new job is titled, 'Virtual-Vehicles_Docker_Machine'. This will replace the previous job, 'Virtual-Vehicles_Docker_Compose'.
 
-Once the code is compiled and packaged into uber-jars, Jenkins uses the <a href="https://wiki.jenkins-ci.org/display/JENKINS/ArtifactDeployer+Plugin">Artifact Deployer Plugin</a> to deploy the build artifacts from Jenkins' workspace to a remote location. In our example, we will copy the artifacts to a second GitHub project, from which we will containerize our microservices.
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-jobs-machine.png"><img class="aligncenter wp-image-5771 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-jobs-machine.png" alt="Jenkins CI Jobs Machine" /></a>
 
-Shown below are the two Jenkins jobs. The first one compiles, packages, and deploys the build artifacts. The second job containerizes the services, databases, and monitoring application.
+The first step in the new Jenkins job is to clone the <a href="https://github.com/garystafford/virtual-vehicles-docker/releases/tag/v1.0.0">Virtual-Vehicles Docker GitHub repository</a>.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-main-page1.png"><img class="aligncenter wp-image-5694 size-large" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-main-page1.png?w=660" alt="Jenkins CI Main Page" width="660" height="434" /></a>
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-machine-config-1.png"><img class="aligncenter wp-image-5773 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-machine-config-1.png" alt="Jenkins CI Machine Config 1" /></a>
 
-Shown below are two screen grabs showing how we clone the Virtual-Vehicles GitHub repository and build the project using the main parent <code>pom.xml</code> file. Building the parent POM, in-turn builds all the microservice modules, using their POM files.
+Next, Jenkins run a bash script to automatically build the test VM with Docker Machine, build the Docker images and containers with Docker Compose within the new VM, and finally test the services.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-11.png"><img class="aligncenter wp-image-5720 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-11.png" alt="Build and Deploy Config 1" width="660" height="409" /></a>
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-machine-config-21.png"><img class="aligncenter wp-image-5785 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/jenkins-ci-machine-config-21.png" alt="Jenkins CI Machine Config 2" /></a>
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-21.png"><img class="aligncenter wp-image-5719 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-21.png" alt="Build and Deploy Config 2" width="660" height="409" /></a>
-<h3>Deploy Build Artifacts</h3>
-Once we have successfully compiled, tested (if we had unit tests with <a href="https://github.com/RestExpress/RestExpress">RestExpress</a>), and packages the build artifacts as uber-jars, we deploy each set of build artifacts to a subfolder within the Virtual-Vehicles Docker GitHub project, using Jenkins' <a href="https://wiki.jenkins-ci.org/display/JENKINS/ArtifactDeployer+Plugin">Artifact Deployer Plugin</a>. Shown below is the deployment configuration for just the Vehicles microservice. This deployment pattern is repeated for each service, within the Jenkins job configuration.
-
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-31.png"><img class="aligncenter wp-image-5718 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-config-31.png" alt="Build and Deploy Config 3" width="660" height="409" /></a>
-
-The Jenkins' <a href="https://wiki.jenkins-ci.org/display/JENKINS/ArtifactDeployer+Plugin">Artifact Deployer Plugin</a> also provides the convenient ability to view and to redeploy the artifacts. Below, you see a list of the microservice artifacts deployed to the Docker project by Jenkins.
-
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png"><img class="aligncenter wp-image-5721 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/build-and-deploy-results1.png" alt="Build and Deploy Results" width="660" height="409" /></a>
-<h3>Build and Compose the Containers</h3>
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/introdockercompose.png"><img class="aligncenter wp-image-5669 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/introdockercompose.png" alt="IntroDockerCompose" width="660" height="329" /></a>
-
-The second Jenkins job clones the <a href="https://github.com/garystafford/virtual-vehicles-docker/releases/tag/v1.0.0">Virtual-Vehicles Docker GitHub repository</a>.
-
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-1.png"><img class="aligncenter wp-image-5680 size-large" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-1.png?w=620" alt="Docker Compose Config 1" width="620" height="408" /></a>
-
-The second Jenkins job executes commands from the shell prompt. The first commands use the <a href="https://docs.docker.com/reference/commandline/cli/">Docker CLI</a> to removes any existing images and containers, which might have been left over from previous job failures. The second commands use the <a href="https://docs.docker.com/compose/cli/">Docker Compose CLI</a> to execute the project's <a href="https://docs.docker.com/compose/yml/">Docker Compose YAML file</a>. The YAML file directs Docker Compose to pull and build the required Docker images, and to build and configure the Docker containers.
-
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-1.png"><img class="aligncenter wp-image-5678 size-large" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-2.png?w=620" alt="Docker Compose Config 2" width="620" height="408" /></a>
+The bash script executed by Jenkins contains the following commands:
 
 ```bash
-# remove all images and containers from this build
-docker ps -a --no-trunc  | grep 'jenkins' \
-| awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
-docker ps -a --no-trunc  | grep 'jenkins' \
-| awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
-docker images --no-trunc | grep 'jenkins' \
-| awk '{print $3}' | xargs -r --no-run-if-empty docker rmi
-```
+# optional: record current versions of docker apps with each build
+docker -v && docker-compose -v && docker-machine -v
 
-```bash
-# set DOCKER_HOST environment variable
-export DOCKER_HOST=tcp://localhost:4243
+# set-up: clean up any previous machine failures
+docker-machine stop test || echo "nothing to stop" && \
+docker-machine rm test   || echo "nothing to remove"
 
-# record installed version of Docker and Maven with each build
-mvn --version && \
-docker --version && \
-docker-compose --version
+# use docker-machine to create and configure 'test' environment
+# add a -D (debug) if having issues
+docker-machine create --driver virtualbox test
+eval "$(docker-machine env test)"
 
-# use docker-compose to build new images and containers
+# use docker-compose to pull and build new images and containers
 docker-compose -p jenkins up -d
 
-# list virtual-vehicles related images
-docker images | grep 'jenkins' | awk '{print $0}'
+# optional: list machines, images, and containers
+docker-machine ls && docker images && docker ps -a
 
-# list all containers
-docker ps -a | grep 'jenkins\|mongo_\|graphite' | awk '{print $0}'
+# wait for containers to fully start before tests fire up
+sleep 30
+
+# test the services
+sh tests.sh $(docker-machine ip test)
+
+# tear down: stop and remove 'test' environment
+docker-machine stop test && docker-machine rm test
 ```
+
+As the above script shows, first Jenkins uses the <a href="https://docs.docker.com/machine/">Docker Machine CLI</a> to build and activate the 'test' virtual machine, using the <a href="https://www.virtualbox.org/">VirtualBox</a> driver. As of docker-machine version 0.3.0, the VirtualBox driver requires at least <a href="https://www.virtualbox.org/wiki/Downloads">VirtualBox 4.3.28</a> to be installed.
+
+```bash
+docker-machine create --driver virtualbox test
+eval "$(docker-machine env test)"
+```
+
+Once this step is complete you will have the following VirtualBox VM created, running, and active.
+
+```text
+NAME   ACTIVE   DRIVER       STATE     URL                         SWARM
+test   *        virtualbox   Running   tcp://192.168.99.100:2376
+```
+
+Next, Jenkins uses the <a href="https://docs.docker.com/compose/cli/">Docker Compose CLI</a> to execute the project's <a href="https://docs.docker.com/compose/yml/">Docker Compose YAML file</a>.
+
+```bash
+docker-compose -p jenkins up -d
+```
+
+The YAML file directs Docker Compose to pull and build the required Docker images, and to build and configure the Docker containers.
 
 ```yaml
 ########################################################################
 #
-# title:       Docker Compose YAML file for Virtual-Vehicles Project
-# author:      Gary A. Stafford (https://programmaticponderings.com)
-# url:         https://github.com/garystafford/virtual-vehicles-docker  
-# description: Builds (4) images, pulls (2) images, and builds (9) containers,
-#              for the Virtual-Vehicles Java microservices example REST API
-# to run:      docker-compose -p virtualvehicles up -d
+# title: Docker Compose YAML file for Virtual-Vehicles Project
+# author: Gary A. Stafford (https://programmaticponderings.com)
+# url: https://github.com/garystafford/virtual-vehicles-docker
+# description: Pulls (5) images, builds (5) images, and builds (11) containers,
+# for the Virtual-Vehicles Java microservices example REST API
+# to run: docker-compose -p &lt;your_project_name_here&gt; up -d
 #
 ########################################################################
 
 graphite:
-  image: hopsoft/graphite-statsd:latest
-  ports:
-   - "8481:80"
+image: hopsoft/graphite-statsd:latest
+ports:
+- "8500:80"
 
 mongoAuthentication:
-  image: mongo:latest
+image: mongo:latest
 
 mongoValet:
-  image: mongo:latest
+image: mongo:latest
 
 mongoMaintenance:
-  image: mongo:latest
+image: mongo:latest
 
 mongoVehicle:
-  image: mongo:latest
+image: mongo:latest
 
 authentication:
-  build: authentication/
-  ports:
-   - "8587:8587"
-  links:
-   - graphite
-   - mongoAuthentication
+build: authentication/
+links:
+- graphite
+- mongoAuthentication
+- "ambassador:nginx"
+expose:
+- "8587"
 
 valet:
-  build: valet/
-  ports:
-   - "8585:8585"
-  links:
-   - graphite
-   - mongoValet
-   - authentication
+build: valet/
+links:
+- graphite
+- mongoValet
+- "ambassador:nginx"
+expose:
+- "8585"
 
 maintenance:
-  build: maintenance/
-  ports:
-   - "8583:8583"
-  links:
-   - graphite
-   - mongoMaintenance
-   - authentication
+build: maintenance/
+links:
+- graphite
+- mongoMaintenance
+- "ambassador:nginx"
+expose:
+- "8583"
 
 vehicle:
-  build: vehicle/
-  ports:
-   - "8581:8581"
-  links:
-   - graphite
-   - mongoVehicle
-   - authentication
+build: vehicle/
+links:
+- graphite
+- mongoVehicle
+- "ambassador:nginx"
+expose:
+- "8581"
+
+nginx:
+build: nginx/
+ports:
+- "80:80"
+links:
+- "ambassador:vehicle"
+- "ambassador:valet"
+- "ambassador:authentication"
+- "ambassador:maintenance"
+
+ambassador:
+image: cpuguy83/docker-grand-ambassador
+volumes:
+- "/var/run/docker.sock:/var/run/docker.sock"
+command: "-name jenkins_nginx_1 -name jenkins_authentication_1 -name jenkins_maintenance_1 -name jenkins_valet_1 -name jenkins_vehicle_1"
 ```
-Running the <code>docker-compose.yaml</code> file, produces the following images:
+
+Running the <code>docker-compose.yaml</code> file, will pull these (5) Docker Hub images:
 
 ```text
-REPOSITORY                TAG        IMAGE ID
-==========                ===        ========
-jenkins_vehicle           latest     a6ea4dfe7cf5
-jenkins_valet             latest     162d3102d43c
-jenkins_maintenance       latest     0b6f530cc968
-jenkins_authentication    latest     45b50487155e
+REPOSITORY                           TAG          IMAGE ID
+==========                           ===          ========
+java                                 8u45-jdk     1f80eb0f8128
+nginx                                latest       319d2015d149
+mongo                                latest       66b43e3cae49
+hopsoft/graphite-statsd              latest       b03e373279e8
+cpuguy83/docker-grand-ambassador     latest       c635b1699f78
 ```
-And, these containers:
+
+And, build these (5) Docker images from Dockerfiles:
 
 ```text
-CONTAINER ID     IMAGE                              NAME
-============     =====                              ====
-2b4d5a918f1f     jenkins_vehicle                    jenkins_vehicle_1
-492fbd88d267     mongo:latest                       jenkins_mongoVehicle_1
-01f410bb1133     jenkins_valet                      jenkins_valet_1
-6a63a664c335     jenkins_maintenance                jenkins_maintenance_1
-00babf484cf7     jenkins_authentication             jenkins_authentication_1
-548a31034c1e     hopsoft/graphite-statsd:latest     jenkins_graphite_1
-cdc18bbb51b4     mongo:latest                       jenkins_mongoAuthentication_1
-6be5c0558e92     mongo:latest                       jenkins_mongoMaintenance_1
-8b71d50a4b4d     mongo:latest                       jenkins_mongoValet_1
+REPOSITORY                  TAG          IMAGE ID
+==========                  ===          ========
+jenkins_nginx               latest       0b53a9adb296
+jenkins_vehicle             latest       d80f79e605f4
+jenkins_valet               latest       cbe8bdf909b8
+jenkins_maintenance         latest       15b8a94c00f4
+jenkins_authentication      latest       ef0345369079
 ```
+
+And, build these (11) Docker containers from corresponding image:
+
+```text
+CONTAINER ID     IMAGE                                NAME
+============     =====                                ====
+17992acc6542     jenkins_nginx                        jenkins_nginx_1
+bcbb2a4b1a7d     jenkins_vehicle                      jenkins_vehicle_1
+4ac1ac69f230     mongo:latest                         jenkins_mongoVehicle_1
+bcc8b9454103     jenkins_valet                        jenkins_valet_1
+7c1794ca7b8c     jenkins_maintenance                  jenkins_maintenance_1
+2d0e117fa5fb     jenkins_authentication               jenkins_authentication_1
+d9146a1b1d89     hopsoft/graphite-statsd:latest       jenkins_graphite_1
+56b34cee9cf3     cpuguy83/docker-grand-ambassador     jenkins_ambassador_1
+a72199d51851     mongo:latest                         jenkins_mongoAuthentication_1
+307cb2c01cc4     mongo:latest                         jenkins_mongoMaintenance_1
+4e0807431479     mongo:latest                         jenkins_mongoValet_1
+```
+
+Since we are connected to the brand new Docker Machine 'test' VM, there are no locally cached Docker images. All images required to build the containers must be pulled from <a href="https://hub.docker.com/">Docker Hub</a>. The build time will be 3-4x as long as the last post's build, which used the cached Docker images on the Jenkins CI machine.
 <h3>Integration Testing</h3>
-Once the containers have been successfully built and configured, we run a series of integration tests to confirm the services are up and running. We refer to these tests as integration tests because they test the interaction of multiple components. Integration tests were covered in the last post, <a href="https://programmaticponderings.wordpress.com/2015/06/05/building-a-microservices-based-rest-api-with-restexpress-java-ee-and-mongodb-part-3/">Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB: Part 3</a>.
-
-Note the short pause I have inserted before running the tests. Docker Compose does an excellent job of accounting for the required start-up order of the containers to avoid <a href="http://blog.chmouel.com/2014/11/04/avoiding-race-conditions-between-containers-with-docker-and-fig/">race conditions</a> (see my previous <a href="https://programmaticponderings.wordpress.com/2014/11/30/preventing-race-conditions-between-containers-in-dockerized-mean-applications/">post</a>). However, depending on the speed of the host box, there is still a start-up period for the container's processes to be up, running, and ready to receive traffic. <a href="http://logging.apache.org/log4j/2.x/">Apache Log4j 2</a> and MongoDB startup, in particular, take extra time. I've seen the containers take as long as 1-2 minutes on a slow box to fully start. Without the pause, the tests fail with various errors, since the container's processes are not all running.
-
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-3.png"><img class="aligncenter wp-image-5679 size-large" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-compose-config-3.png?w=620" alt="Docker Compose Config 3" width="620" height="408" /></a>
+As in the last <a href="https://programmaticponderings.wordpress.com/2015/06/22/continuous-integration-and-delivery-of-microservices-using-jenkins-ci-maven-and-docker-compose/">post</a>, once the containers are built and configured, we run a series of expanded integration tests to confirm the containers and services are working. One difference, this time we will pass a parameter to the test bash script file:
 
 ```bash
-sleep 15
-sh tests.sh -v
+sh tests.sh $(docker-machine ip test)
 ```
-The bash-based tests below just scratch the surface as a complete set of integration tests. However, they demonstrate an effective multi-stage testing pattern for handling the complex nature of RESTful service request requirements. The tests build upon each other. After setting up some variables, the tests register a new API client. Then, they use the new client's API key to obtain a JWT. The tests then use the JWT to authenticate themselves, and create a new vehicle. Finally, they use the new vehicle's id and the JWT to verify the existence for the new vehicle.
 
-Although some may consider using bash to test somewhat primitive, the script demonstrates the effectiveness of bash's <code>curl</code>, <code>grep</code>, <code>sed</code>, <code>awk</code>, along with regular expressions, to test our RESTful services
+The parameter is the hostname used in the test's RESTful service calls. The parameter, <code>$(docker-machine ip test)</code>, is translated to the IP address of the 'test' VM. In our example, <code>192.168.99.100</code>. If a parameter is not provided, the test script's <code>hostname</code> variable will use the default value of <code>localhost</code>, '<code>hostname=${1-'localhost'}</code>'.
+
+Another change since the last post, the project now uses the open source version of <a href="http://wiki.nginx.org/Main">Nginx</a>, the free, open-source, high-performance HTTP server and reverse proxy, as a pseudo-API gateway. Instead calling each microservice directly, using their individual ports (i.e. port <code>8581</code> for the Vehicle microservice), all traffic is sent through Nginx on default http port 80, for example:
+
+```bash
+http://192.168.99.100/vehicles/utils/ping.json
+http://192.168.99.100/jwts?apiKey=Z1nXG8JGKwvGlzQgPLwQdndW&amp;secret=ODc4OGNiNjE5ZmI
+http://192.168.99.100/vehicles/558f3042e4b0e562c03329ad
+```
+
+Internal traffic between the microservices and MongoDB, and between the microservices and <a href="http://graphite.wikidot.com/">Graphite</a> is still direct, using Docker container <a href="https://docs.docker.com/userguide/dockerlinks/">linking</a>. Traffic between the microservices and Nginx, in both directions, is handled by an <a href="https://docs.docker.com/articles/ambassador_pattern_linking/">ambassador container</a>, a common pattern. Nginx acts as a <a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a> for the microservices. Using Nginx brings us closer to a truer production-like experience for testing the services.
 
 ```bash
 #!/bin/sh
 
 ########################################################################
 #
-# title:       Virtual-Vehicles Project Integration Tests
-# author:      Gary A. Stafford (https://programmaticponderings.com)
-# url:         https://github.com/garystafford/virtual-vehicles-docker  
+# title: Virtual-Vehicles Project Integration Tests
+# author: Gary A. Stafford (https://programmaticponderings.com)
+# url: https://github.com/garystafford/virtual-vehicles-docker
 # description: Performs integration tests on the Virtual-Vehicles
-#              microservices
-# to run:      sh tests.sh -v
+# microservices
+# to run: sh tests.sh
+# docker-machine: sh tests.sh $(docker-machine ip test)
 #
 ########################################################################
 
 echo --- Integration Tests ---
+echo
 
 ### VARIABLES ###
-hostname="localhost"
+hostname=${1-'localhost'} # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
+make="Test"
+model="Foo"
 
 echo hostname: ${hostname}
 echo application: ${application}
 echo secret: ${secret}
-
+echo make: ${make}
+echo model: ${model}
+echo
 
 ### TESTS ###
 echo "TEST: GET request should return 'true' in the response body"
-url="http://${hostname}:8581/vehicles/utils/ping.json"
+url="http://${hostname}/vehicles/utils/ping.json"
 echo ${url}
 curl -X GET -H 'Accept: application/json; charset=UTF-8' \
 --url "${url}" \
-| grep true > /dev/null
+| grep true &gt; /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
-
+echo
 
 echo "TEST: POST request should return a new client in the response body with an 'id'"
-url="http://${hostname}:8587/clients"
+url="http://${hostname}/clients"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" -d "{
-    \"application\": \"${application}\",
-    \"secret\": \"${secret}\"
+\"application\": \"${application}\",
+\"secret\": \"${secret}\"
 }" --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
-
+echo
 
 echo "SETUP: Get the new client's apiKey for next test"
-url="http://${hostname}:8587/clients"
+url="http://${hostname}/clients"
 echo ${url}
 apiKey=$(curl -X POST -H "Cache-Control: no-cache" -d "{
-    \"application\": \"${application}\",
-    \"secret\": \"${secret}\"
+\"application\": \"${application}\",
+\"secret\": \"${secret}\"
 }" --url "${url}" \
 | grep -o '"apiKey":"[a-zA-Z0-9]\{24\}"' \
 | grep -o '[a-zA-Z0-9]\{24\}' \
-| sed -e 's/^"//'  -e 's/"$//')
+| sed -e 's/^"//' -e 's/"$//')
 echo apiKey: ${apiKey}
 echo
 
 echo "TEST: GET request should return a new jwt in the response body"
-url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&amp;secret=${secret}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
-| grep '[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}' > /dev/null
+| grep '[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}' &gt; /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
-
+echo
 
 echo "SETUP: Get a new jwt using the new client for the next test"
-url="http://${hostname}:8587/jwts?apiKey=${apiKey}&secret=${secret}"
+url="http://${hostname}/jwts?apiKey=${apiKey}&amp;secret=${secret}"
 echo ${url}
 jwt=$(curl -X GET -H "Cache-Control: no-cache" \
 --url "${url}" \
 | grep '[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}\.[a-zA-Z0-9_-]\{1,\}' \
-| sed -e 's/^"//'  -e 's/"$//')
+| sed -e 's/^"//' -e 's/"$//')
 echo jwt: ${jwt}
-
+echo
 
 echo "TEST: POST request should return a new vehicle in the response body with an 'id'"
-url="http://${hostname}:8581/vehicles"
+url="http://${hostname}/vehicles"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
--d '{
-    "year": 2015,
-    "make": "Test",
-    "model": "Foo",
-    "color": "White",
-    "type": "Sedan",
-    "mileage": 250
-}' --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+-d "{
+\"year\": 2015,
+\"make\": \"${make}\",
+\"model\": \"${model}\",
+\"color\": \"White\",
+\"type\": \"Sedan\",
+\"mileage\": 250
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
-
+echo
 
 echo "SETUP: Get id from new vehicle for the next test"
-url="http://${hostname}:8581/vehicles?filter=make::Test|model::Foo&limit=1"
+url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&amp;limit=1"
 echo ${url}
 id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -323,36 +344,272 @@ id=$(curl -X GET -H "Cache-Control: no-cache" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' \
 | grep -o '[a-zA-Z0-9]\{24\}' \
 | tail -1 \
-| sed -e 's/^"//'  -e 's/"$//')
+| sed -e 's/^"//' -e 's/"$//')
 echo vehicle id: ${id}
-
+echo
 
 echo "TEST: GET request should return a vehicle in the response body with the requested 'id'"
-url="http://${hostname}:8581/vehicles/${id}"
+url="http://${hostname}/vehicles/${id}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
 --url "${url}" \
-| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
-```
-Since these tests are just a bash script, they can also be ran separately from the command line, as in the screen grab below. The output, except for the colored text, is identical to what appears in the Jenkins console output.
+echo
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/running-integration-tests.png"><img class="aligncenter wp-image-5714 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/running-integration-tests.png" alt="Tests from Terminal Prompt" width="656" height="673" /></a>
+echo "TEST: POST request should return a new maintenance record in the response body with an 'id'"
+url="http://${hostname}/maintenances"
+echo ${url}
+curl -X POST -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+\"vehicleId\": \"${id}\",
+\"serviceDateTime\": \"2015-27-00T15:00:00.400Z\",
+\"mileage\": 1000,
+\"type\": \"Test Maintenance\",
+\"notes\": \"This is a test notes.\"
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+echo "TEST: POST request should return a new valet transaction in the response body with an 'id'"
+url="http://${hostname}/valets"
+echo ${url}
+curl -X POST -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+\"vehicleId\": \"${id}\",
+\"dateTimeIn\": \"2015-27-00T15:00:00.400Z\",
+\"parkingLot\": \"Test Parking Ramp\",
+\"parkingSpot\": 10,
+\"notes\": \"This is a test notes.\"
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' &gt; /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+```
+
 <h3>Tear Down</h3>
-Once the integration tests have completed, we 'tear down' the project by removing the Virtual-Vehicle images and containers. We simply repeat the first commands we ran at the start of the Jenkins build phase. You could choose to remove the tear down step, and use this job as a way to simply build and start your multi-container application.
+In true continuous integration fashion, once the integration tests have completed, we tear down the project by removing the VirtualBox 'test' VM. This also removed all images and containers.
 
 ```bash
-# remove all images and containers from this build
-docker ps -a --no-trunc  | grep 'jenkins' \
-| awk '{print $1}' | xargs -r --no-run-if-empty docker stop && \
-docker ps -a --no-trunc  | grep 'jenkins' \
-| awk '{print $1}' | xargs -r --no-run-if-empty docker rm && \
-docker images --no-trunc | grep 'jenkins' \
-| awk '{print $3}' | xargs -r --no-run-if-empty docker rmi
+docker-machine stop test && \
+docker-machine rm test
 ```
-<h3>The Complete Process</h3>
-The below diagram show the entire process, start to finish.
 
-<a href="https://programmaticponderings.files.wordpress.com/2015/06/fullprocess.png"><img class="aligncenter wp-image-5745 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/fullprocess.png" alt="Full Process" width="660" height="305" /></a>
+<h3>Jenkins CI Console Output</h3>
+Below is an abridged sample of what the Jenkins CI console output will look like from a successful 'build'.
+
+```text
+Started by user anonymous
+Building in workspace /var/lib/jenkins/jobs/Virtual-Vehicles_Docker_Machine/workspace
+&gt; git rev-parse --is-inside-work-tree # timeout=10
+Fetching changes from the remote Git repository
+&gt; git config remote.origin.url https://github.com/garystafford/virtual-vehicles-docker.git # timeout=10
+Fetching upstream changes from https://github.com/garystafford/virtual-vehicles-docker.git
+&gt; git --version # timeout=10
+using GIT_SSH to set credentials
+using .gitcredentials to set credentials
+&gt; git config --local credential.helper store --file=/tmp/git7588068314920923143.credentials # timeout=10
+&gt; git -c core.askpass=true fetch --tags --progress https://github.com/garystafford/virtual-vehicles-docker.git +refs/heads/*:refs/remotes/origin/*
+&gt; git config --local --remove-section credential # timeout=10
+&gt; git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+&gt; git rev-parse refs/remotes/origin/origin/master^{commit} # timeout=10
+Checking out Revision f473249f0f70290b75cb320909af1f57cdaf2aa5 (refs/remotes/origin/master)
+&gt; git config core.sparsecheckout # timeout=10
+&gt; git checkout -f f473249f0f70290b75cb320909af1f57cdaf2aa5
+&gt; git rev-list f473249f0f70290b75cb320909af1f57cdaf2aa5 # timeout=10
+[workspace] $ /bin/sh -xe /tmp/hudson8587699987350884629.sh
+
++ docker -v
+Docker version 1.7.0, build 0baf609
++ docker-compose -v
+docker-compose version: 1.3.1
+CPython version: 2.7.9
+OpenSSL version: OpenSSL 1.0.1e 11 Feb 2013
++ docker-machine -v
+docker-machine version 0.3.0 (0a251fe)
+
++ docker-machine stop test
++ docker-machine rm test
+Successfully removed test
+
++ docker-machine create --driver virtualbox test
+Creating VirtualBox VM...
+Creating SSH key...
+Starting VirtualBox VM...
+Starting VM...
+To see how to connect Docker to this machine, run: docker-machine env test
++ docker-machine env test
++ eval export DOCKER_TLS_VERIFY="1"
+export DOCKER_HOST="tcp://192.168.99.100:2376"
+export DOCKER_CERT_PATH="/var/lib/jenkins/.docker/machine/machines/test"
+export DOCKER_MACHINE_NAME="test"
+# Run this command to configure your shell:
+# eval "$(docker-machine env test)"
++ export DOCKER_TLS_VERIFY=1
++ export DOCKER_HOST=tcp://192.168.99.100:2376
++ export DOCKER_CERT_PATH=/var/lib/jenkins/.docker/machine/machines/test
++ export DOCKER_MACHINE_NAME=test
++ docker-compose -p jenkins up -d
+Pulling mongoValet (mongo:latest)...
+latest: Pulling from mongo
+
+...Abridged output...
+
++ docker-machine ls
+NAME   ACTIVE   DRIVER       STATE     URL                         SWARM
+test   *        virtualbox   Running   tcp://192.168.99.100:2376
++ docker images
+REPOSITORY                         TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+jenkins_vehicle                    latest              fdd7f9d02ff7        2 seconds ago       837.1 MB
+jenkins_valet                      latest              8a592e0fe69a        4 seconds ago       837.1 MB
+jenkins_maintenance                latest              5a4a44e136e5        5 seconds ago       837.1 MB
+jenkins_authentication             latest              e521e067a701        7 seconds ago       838.7 MB
+jenkins_nginx                      latest              085d183df8b4        25 minutes ago      132.8 MB
+java                               8u45-jdk            1f80eb0f8128        12 days ago         816.4 MB
+nginx                              latest              319d2015d149        12 days ago         132.8 MB
+mongo                              latest              66b43e3cae49        12 days ago         260.8 MB
+hopsoft/graphite-statsd            latest              b03e373279e8        4 weeks ago         740 MB
+cpuguy83/docker-grand-ambassador   latest              c635b1699f78        5 months ago        525.7 MB
+
++ docker ps -a
+CONTAINER ID        IMAGE                              COMMAND                CREATED             STATUS              PORTS                                      NAMES
+4ea39fa187bf        jenkins_vehicle                    "java -classpath .:c   2 seconds ago       Up 1 seconds        8581/tcp                                   jenkins_vehicle_1
+b248a836546b        mongo:latest                       "/entrypoint.sh mong   3 seconds ago       Up 3 seconds        27017/tcp                                  jenkins_mongoVehicle_1
+0c94e6409afc        jenkins_valet                      "java -classpath .:c   4 seconds ago       Up 3 seconds        8585/tcp                                   jenkins_valet_1
+657f8432004b        jenkins_maintenance                "java -classpath .:c   5 seconds ago       Up 5 seconds        8583/tcp                                   jenkins_maintenance_1
+8ff6de1208e3        jenkins_authentication             "java -classpath .:c   7 seconds ago       Up 6 seconds        8587/tcp                                   jenkins_authentication_1
+c799d5f34a1c        hopsoft/graphite-statsd:latest     "/sbin/my_init"        12 minutes ago      Up 12 minutes       2003/tcp, 8125/udp, 0.0.0.0:8500-&gt;80/tcp   jenkins_graphite_1
+040872881b25        jenkins_nginx                      "nginx -g 'daemon of   25 minutes ago      Up 25 minutes       0.0.0.0:80-&gt;80/tcp, 443/tcp                jenkins_nginx_1
+c6a2dc726abc        mongo:latest                       "/entrypoint.sh mong   26 minutes ago      Up 26 minutes       27017/tcp                                  jenkins_mongoAuthentication_1
+db22a44239f4        mongo:latest                       "/entrypoint.sh mong   26 minutes ago      Up 26 minutes       27017/tcp                                  jenkins_mongoMaintenance_1
+d5fd655474ba        cpuguy83/docker-grand-ambassador   "/usr/bin/grand-amba   26 minutes ago      Up 26 minutes                                                  jenkins_ambassador_1
+2b46bd6f8cfb        mongo:latest                       "/entrypoint.sh mong   31 minutes ago      Up 31 minutes       27017/tcp                                  jenkins_mongoValet_1
+
++ sleep 30
+
++ docker-machine ip test
++ sh tests.sh 192.168.99.100
+
+--- Integration Tests ---
+
+hostname: 192.168.99.100
+application: Test API Client 1435585062
+secret: NGM5OTI5ODAxMTZ
+make: Test
+model: Foo
+
+TEST: GET request should return 'true' in the response body
+http://192.168.99.100/vehicles/utils/ping.json
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100     4    0     4    0     0     26      0 --:--:-- --:--:-- --:--:--    25
+100     4    0     4    0     0     26      0 --:--:-- --:--:-- --:--:--    25
+RESULT: pass
+
+TEST: POST request should return a new client in the response body with an 'id'
+http://192.168.99.100/clients
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   399    0   315  100    84    847    225 --:--:-- --:--:-- --:--:--   849
+RESULT: pass
+
+SETUP: Get the new client's apiKey for next test
+http://192.168.99.100/clients
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   399    0   315  100    84  20482   5461 --:--:-- --:--:-- --:--:-- 21000
+apiKey: sv1CA9NdhmXh72NrGKBN3Abb
+
+TEST: GET request should return a new jwt in the response body
+http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&amp;secret=NGM5OTI5ODAxMTZ
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   222    0   222    0     0    686      0 --:--:-- --:--:-- --:--:--   687
+RESULT: pass
+
+SETUP: Get a new jwt using the new client for the next test
+http://192.168.99.100/jwts?apiKey=sv1CA9NdhmXh72NrGKBN3Abb&amp;secret=NGM5OTI5ODAxMTZ
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   222    0   222    0     0  16843      0 --:--:-- --:--:-- --:--:-- 17076
+jwt: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkudmlydHVhbC12ZWhpY2xlcy5jb20iLCJhcGlLZXkiOiJzdjFDQTlOZGhtWGg3Mk5yR0tCTjNBYmIiLCJleHAiOjE0MzU2MjEwNjMsImFpdCI6MTQzNTU4NTA2M30.WVlhIhUcTz6bt3iMVr6MWCPIDd6P0aDZHl_iUd6AgrM
+
+TEST: POST request should return a new vehicle in the response body with an 'id'
+http://192.168.99.100/vehicles
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   123    0     0  100   123      0    612 --:--:-- --:--:-- --:--:--   611
+100   419    0   296  100   123    649    270 --:--:-- --:--:-- --:--:--   649
+RESULT: pass
+
+SETUP: Get id from new vehicle for the next test
+http://192.168.99.100/vehicles?filter=make::Test|model::Foo&amp;limit=1
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   377    0   377    0     0   5564      0 --:--:-- --:--:-- --:--:--  5626
+vehicle id: 55914a28e4b04658471dc03a
+
+TEST: GET request should return a vehicle in the response body with the requested 'id'
+http://192.168.99.100/vehicles/55914a28e4b04658471dc03a
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   296    0   296    0     0   7051      0 --:--:-- --:--:-- --:--:--  7219
+RESULT: pass
+
+TEST: POST request should return a new maintenance record in the response body with an 'id'
+http://192.168.99.100/maintenances
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   565    0   376  100   189    506    254 --:--:-- --:--:-- --:--:--   506
+100   565    0   376  100   189    506    254 --:--:-- --:--:-- --:--:--   506
+RESULT: pass
+
+TEST: POST request should return a new valet transaction in the response body with an 'id'
+http://192.168.99.100/valets
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+Dload  Upload   Total   Spent    Left  Speed
+
+0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   561    0   368  100   193    514    269 --:--:-- --:--:-- --:--:--   514
+RESULT: pass
+
++ docker-machine stop test
++ docker-machine rm test
+Successfully removed test
+
+Finished: SUCCESS
+```
+
+<h3>Graphite and Statsd</h3>
+If you've chose to build the Virtual-Vehicles Docker project outside of Jenkins CI, then in addition running the test script and using applications like Postman to test the Virtual-Vehicles RESTful API, you may also use <a href="http://graphite.readthedocs.org/en/latest/overview.html">Graphite</a> and <a href="https://github.com/etsy/statsd/wiki">StatsD</a>. RestExpress comes fully configured out of the box with Graphite integration, through the <a href="https://dropwizard.github.io/metrics/3.1.0/">Metrics plugin</a>. The Virtual-Vehicles RESTful API example is configured to use port 8500 to access the Graphite UI. The Virtual-Vehicles RESTful API example uses the <a href="https://registry.hub.docker.com/u/hopsoft/graphite-statsd/">hopsoft/graphite-statsd</a> Docker image to build the Graphite/StatsD Docker container.
+
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/graphite-dashboard.png"><img class="aligncenter wp-image-5838 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/graphite-dashboard.png" alt="Graphite Dashboard" /></a>
+<h3>The Complete Process</h3>
+The below diagram show the entire Virtual-Vehicles continuous integration and delivery process, start to finish, using Docker, Docker Hub, Docker Machine, Docker Compose, Jenkins CI, Maven, RestExpress, and VirtualBox.
+
+<a href="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-full-process.png"><img class="aligncenter wp-image-5832 size-full" style="border: 0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/06/docker-machine-full-process.png" alt="Docker Machine Full Process" /></a>
