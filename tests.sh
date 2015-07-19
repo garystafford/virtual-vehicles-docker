@@ -15,7 +15,7 @@
 echo --- Integration Tests ---
 echo
 
-### VARIABLES ###
+########## VARIABLES ##########
 hostname=${1-'localhost'} # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
@@ -30,7 +30,7 @@ echo model: ${model}
 echo
 
 
-### TESTS ###
+########## AUTHENTICATION MICROSERVICE ##########
 echo "TEST: GET request should return 'true' in the response body"
 url="http://${hostname}/vehicles/utils/ping.json"
 echo ${url}
@@ -91,6 +91,7 @@ echo jwt: ${jwt}
 echo
 
 
+########## VEHICLE MICROSERVICE ##########
 echo "TEST: POST request should return a new vehicle in the response body with an 'id'"
 url="http://${hostname}/vehicles"
 echo ${url}
@@ -113,19 +114,19 @@ echo
 echo "SETUP: Get id from new vehicle for the next test"
 url="http://${hostname}/vehicles?filter=make::${make}|model::${model}&limit=1"
 echo ${url}
-id=$(curl -X GET -H "Cache-Control: no-cache" \
+vehicle_id=$(curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
 --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' \
 | grep -o '[a-zA-Z0-9]\{24\}' \
 | tail -1 \
 | sed -e 's/^"//'  -e 's/"$//')
-echo vehicle id: ${id}
+echo vehicle id: ${vehicle_id}
 echo
 
 
 echo "TEST: GET request should return a vehicle in the response body with the requested 'id'"
-url="http://${hostname}/vehicles/${id}"
+url="http://${hostname}/vehicles/${vehicle_id}"
 echo ${url}
 curl -X GET -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
@@ -136,17 +137,18 @@ echo "RESULT: pass"
 echo
 
 
+########## MAINTENANCE MICROSERVICE ##########
 echo "TEST: POST request should return a new maintenance record in the response body with an 'id'"
 url="http://${hostname}/maintenances"
 echo ${url}
 curl -X POST -H "Cache-Control: no-cache" \
 -H "Authorization: Bearer ${jwt}" \
 -d "{
-    \"vehicleId\": \"${id}\",
+    \"vehicleId\": \"${vehicle_id}\",
     \"serviceDateTime\": \"2015-27-00T15:00:00.400Z\",
     \"mileage\": 1000,
     \"type\": \"Test Maintenance\",
-    \"notes\": \"This is a test notes.\"
+    \"notes\": \"This is a test note.\"
 }" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
@@ -154,6 +156,52 @@ echo "RESULT: pass"
 echo
 
 
+echo "SETUP: Get maintenance record id from new maintenance record for the next test"
+url="http://${hostname}/maintenances?filter=vehicleId::${vehicle_id}&limit=1"
+echo ${url}
+maintenance_id=$(curl -X GET -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+--url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' \
+| grep -o '[a-zA-Z0-9]\{24\}' \
+| tail -1 \
+| sed -e 's/^"//'  -e 's/"$//')
+echo maintenance record id: ${maintenance_id}
+echo
+
+
+echo "TEST: PUT request should return the modified maintenance record in the response body with an 'id'"
+url="http://${hostname}/maintenances/${maintenance_id}"
+echo ${url}
+curl -X PUT -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+    \"vehicleId\": \"${vehicle_id}\",
+    \"serviceDateTime\": \"2015-27-00T15:00:00.400Z\",
+    \"mileage\": 1000,
+    \"type\": \"Test Maintenance\",
+    \"notes\": \"This is an updated test note.\",
+    \"createdAt\": \"2015-26-00T10:30:00.400Z\"
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+echo "TEST: DELETE should remove new maintenance record and return a 204"
+url="http://${hostname}/maintenances/${maintenance_id}"
+echo ${url}
+curl -X DELETE -I -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+--url "${url}" \
+| grep '204 No Content' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+########## VALET MICROSERVICE ##########
 echo "TEST: POST request should return a new valet transaction in the response body with an 'id'"
 url="http://${hostname}/valets"
 echo ${url}
@@ -167,6 +215,63 @@ curl -X POST -H "Cache-Control: no-cache" \
     \"notes\": \"This is a test notes.\"
 }" --url "${url}" \
 | grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+echo "SETUP: Get valet transaction id from new valet transaction for the next test"
+url="http://${hostname}/valets?filter=vehicleId::${vehicle_id}&limit=1"
+echo ${url}
+valet_id=$(curl -X GET -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+--url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' \
+| grep -o '[a-zA-Z0-9]\{24\}' \
+| tail -1 \
+| sed -e 's/^"//'  -e 's/"$//')
+echo valet transaction id: ${valet_id}
+echo
+
+
+echo "TEST: PUT request should return the modified valet transaction in the response body with an 'id'"
+url="http://${hostname}/valets/${valet_id}"
+echo ${url}
+curl -X PUT -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+-d "{
+    \"dateTimeIn\": \"2015-27-00T15:00:00.400Z\",
+    \"dateTimeOut\": \"2015-27-00T21:30:00.400Z\",
+    \"parkingLot\": \"Test Parking Ramp\",
+    \"parkingSpot\": 10,
+    \"notes\": \"This is an updated test note.\",
+    \"createdAt\": \"2015-26-00T10:30:00.400Z\"
+}" --url "${url}" \
+| grep '"id":"[a-zA-Z0-9]\{24\}"' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+
+echo "TEST: DELETE should remove new valet transaction and return a 204"
+url="http://${hostname}/valets/${valet_id}"
+echo ${url}
+curl -X DELETE -I -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer ${jwt}" \
+--url "${url}" \
+| grep '204 No Content' > /dev/null
+[ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
+echo "RESULT: pass"
+echo
+
+########## NEGATIVE TESTING ##########
+echo "TEST: GET request with bad JWT should return a 401 Unauthorized"
+url="http://${hostname}/vehicles"
+echo ${url}
+curl -X GET -I -H "Cache-Control: no-cache" \
+-H "Authorization: Bearer not.valid.jwt" \
+--url "${url}" \
+| grep '401 Unauthorized' > /dev/null
 [ "$?" -ne 0 ] && echo "RESULT: fail" && exit 1
 echo "RESULT: pass"
 echo

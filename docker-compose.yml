@@ -1,4 +1,4 @@
-########################################################################
+  ########################################################################
 #
 # title:       Docker Compose YAML file for Virtual-Vehicles Project
 # author:      Gary A. Stafford (https://programmaticponderings.com)
@@ -35,6 +35,7 @@ authentication:
    - graphite
    - mongoauthentication
    - "ambassador:nginx"
+   - elk
   expose:
    - "8587"
 
@@ -89,7 +90,7 @@ ambassador:
 elk:
   build: elk/
   ports:
-    - "8080:80"
+    - "8200:80"
     - "5000:5000"
     - "5000:5000/udp"
     - "9200:9200"
@@ -104,6 +105,5 @@ logspout:
     - elk
   ports:
    - "8000:80"
-  #command: "logstash://elk:5000"
   environment:
     - ROUTE_URIS=logstash://elk:5000

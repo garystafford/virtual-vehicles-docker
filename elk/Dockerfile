@@ -6,5 +6,4 @@ MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
 ENV REFRESHED_AT 2015-07-08
 
-#COPY logstash-syslog.conf /etc/logstash/logstash-syslog.conf
 COPY logstash-logspout.conf /etc/logstash/logstash-logspout.conf
