@@ -34,37 +34,40 @@ authentication:
   links:
    - graphite
    - mongoauthentication
-   - "ambassador:nginx"
-   - elk
   expose:
    - "8587"
+  extra_hosts:
+   - "api.virtual-vehicles.com:192.168.99.100"
 
 valet:
   build: valet/
   links:
    - graphite
    - mongovalet
-   - "ambassador:nginx"
   expose:
    - "8585"
+  extra_hosts:
+   - "api.virtual-vehicles.com:192.168.99.100"
 
 maintenance:
   build: maintenance/
   links:
    - graphite
    - mongomaintenance
-   - "ambassador:nginx"
   expose:
    - "8583"
+  extra_hosts:
+   - "api.virtual-vehicles.com:192.168.99.100"
 
 vehicle:
   build: vehicle/
   links:
    - graphite
    - mongovehicle
-   - "ambassador:nginx"
   expose:
    - "8581"
+  extra_hosts:
+   - "api.virtual-vehicles.com:192.168.99.100"
 
 graphite:
   image: hopsoft/graphite-statsd:latest
@@ -76,16 +79,10 @@ nginx:
   ports:
    - "80:80"
   links:
-   - "ambassador:vehicle"
-   - "ambassador:valet"
-   - "ambassador:authentication"
-   - "ambassador:maintenance"
-
-ambassador:
-  image: cpuguy83/docker-grand-ambassador
-  volumes:
-   - "/var/run/docker.sock:/var/run/docker.sock"
-  command: "-name jenkins_nginx_1 -name jenkins_authentication_1 -name jenkins_maintenance_1 -name jenkins_valet_1 -name jenkins_vehicle_1"
+   - vehicle
+   - valet
+   - authentication
+   - maintenance
 
 elk:
   build: elk/
@@ -96,6 +93,8 @@ elk:
     - "9200:9200"
   expose:
    - "5000"
+  volumes:
+    - "/home/docker/data:/data/db"
 
 logspout:
   build: logspout/
