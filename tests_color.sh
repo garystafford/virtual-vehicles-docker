@@ -275,7 +275,7 @@ echo "TEST: GET request with bad JWT should return a 401 Unauthorized"
 url="http://${hostname}/vehicles"
 echo ${url}
 curl -X GET -I -H "Cache-Control: no-cache" \
--H "Authorization: Bearer not.valid.jwt" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1Ni.eyJpc3MizNdpc3RlciJ9.5ciAxpfnW2C" \
 --url "${url}" \
 | grep '401 Unauthorized' > /dev/null
 [ "$?" -ne 0 ] && echo "${RED}RESULT: fail${NC}" && exit 1
