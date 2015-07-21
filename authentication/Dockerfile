@@ -13,8 +13,8 @@ ENV REFRESHED_AT 2015-07-06
 #apt-get -y autoclean && \
 #apt-get -y autoremove
 
-#RUN touch /var/log/virtual-authentication.log && \
-#ln -sf /dev/stdout /var/log/virtual-authentication.log
+RUN touch /var/log/virtual-authentication.log && \
+ln -sf /dev/stdout /var/log/virtual-authentication.log
 
 COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles

@@ -34,7 +34,7 @@ authentication:
   links:
    - graphite
    - mongoauthentication
-   - elk
+   # - elk
   expose:
    - "8587"
   extra_hosts:
@@ -45,7 +45,7 @@ valet:
   links:
    - graphite
    - mongovalet
-   - elk
+   # - elk
   expose:
    - "8585"
   extra_hosts:
@@ -56,7 +56,7 @@ maintenance:
   links:
    - graphite
    - mongomaintenance
-   - elk
+   # - elk
   expose:
    - "8583"
   extra_hosts:
@@ -67,7 +67,7 @@ vehicle:
   links:
    - graphite
    - mongovehicle
-   - elk
+   # - elk
   expose:
    - "8581"
   extra_hosts:
@@ -92,7 +92,7 @@ elk:
   build: elk/
   ports:
     - "8200:80"
-    - "5000:5000"
+    # - "5000:5000"
     - "5000:5000/udp"
     - "9200:9200"
   expose:
