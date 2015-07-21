@@ -87,9 +87,6 @@ elk:
     - "5000:5000/udp"
     - "5001:5001/udp"
     - "9200:9200"
-  expose:
-   - "5000"
-   - "5001"
 
 logspout:
   build: logspout/
