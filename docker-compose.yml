@@ -11,29 +11,30 @@
 
 mongoauthentication:
   build: mongo/
-#  volumes:
-#    - "/home/docker/data:/data/db"
+  # volumes:
+  #   - "/home/docker/data:/data/db"
 
 mongovalet:
   build: mongo/
-#  volumes:
-#    - "/home/docker/data:/data/db"
+  # volumes:
+  #   - "/home/docker/data:/data/db"
 
 mongomaintenance:
   build: mongo/
-#  volumes:
-#    - "/home/docker/data:/data/db"
+  # volumes:
+  #   - "/home/docker/data:/data/db"
 
 mongovehicle:
   build: mongo/
-#  volumes:
-#    - "/home/docker/data:/data/db"
+  # volumes:
+  #   - "/home/docker/data:/data/db"
 
 authentication:
   build: authentication/
   links:
    - graphite
    - mongoauthentication
+   - elk
   expose:
    - "8587"
   extra_hosts:
@@ -44,6 +45,7 @@ valet:
   links:
    - graphite
    - mongovalet
+   - elk
   expose:
    - "8585"
   extra_hosts:
@@ -54,6 +56,7 @@ maintenance:
   links:
    - graphite
    - mongomaintenance
+   - elk
   expose:
    - "8583"
   extra_hosts:
@@ -64,6 +67,7 @@ vehicle:
   links:
    - graphite
    - mongovehicle
+   - elk
   expose:
    - "8581"
   extra_hosts:
@@ -93,8 +97,8 @@ elk:
     - "9200:9200"
   expose:
    - "5000"
-  volumes:
-    - "/home/docker/data:/data/db"
+  # volumes:
+  #   - "/home/docker/data:/data/db"
 
 logspout:
   build: logspout/

@@ -6,6 +6,4 @@ MAINTAINER Gary A. Stafford <garystafford@rochester.rr.com>
 
 ENV REFRESHED_AT 2015-07-07
 
-COPY mongod.conf /etc/mongod.conf
-
-CMD ["mongod", "--config", "/etc/mongod.conf"]
+CMD ["mongod", "--smallfiles"]

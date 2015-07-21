@@ -13,8 +13,8 @@ ENV REFRESHED_AT 2015-06-23
 #apt-get -y autoclean && \
 #apt-get -y autoremove
 
-RUN touch /var/log/virtual-valet.log && \
-ln -sf /dev/stdout /var/log/virtual-valet.log
+#RUN touch /var/log/virtual-valet.log && \
+#ln -sf /dev/stdout /var/log/virtual-valet.log
 
 COPY ./artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
