@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build Docker images and containers for Virtual-Vehicles project using Docker Compose, in a VirtualBox VM, created and managed by Docker Machine</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.11.3">
+      <projectUrl>https://github.com/garystafford/virtual-vehicles-demo.git/</projectUrl>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.3.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/garystafford/virtual-vehicles-docker.git</url>
+        <credentialsId>***removed***</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># optional: record current versions of docker apps with each build
+docker -v &amp;&amp; docker-compose -v &amp;&amp; docker-machine -v
+
+# set-up: clean up any previous machine failures
+docker-machine stop test || echo &quot;nothing to stop&quot; &amp;&amp; \
+docker-machine rm test   || echo &quot;nothing to remove&quot;
+
+# use docker-machine to create and configure &apos;test&apos; environment
+# add a -D (debug) if having issues
+docker-machine create --driver virtualbox test
+eval &quot;$(docker-machine env test)&quot;
+
+# use docker-compose to pull and build new images and containers
+docker-compose -p jenkins up -d
+
+# optional: list machines, images, and containers
+docker-machine ls &amp;&amp; docker images &amp;&amp; docker ps -a
+
+# wait for containers to fully start before tests fire up
+sleep 30
+
+# test services
+sh tests.sh $(docker-machine ip test)
+
+# tear down: stop and remove &apos;test&apos; environment
+#docker-machine stop test &amp;&amp; docker-machine rm test</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

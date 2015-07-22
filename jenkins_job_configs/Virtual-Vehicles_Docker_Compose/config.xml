@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build Docker images and containers for Virtual-Vehicles project using Docker Compose</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.11.3">
+      <projectUrl>https://github.com/garystafford/virtual-vehicles-demo.git/</projectUrl>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.3.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/garystafford/virtual-vehicles-docker.git</url>
+        <credentialsId>***removed***</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># remove all images and containers from this build
+docker ps -a --no-trunc  | grep &apos;jenkins&apos; | awk &apos;{print $1}&apos; \
+| xargs -r --no-run-if-empty docker stop &amp;&amp; \
+docker ps -a --no-trunc  | grep &apos;jenkins&apos; | awk &apos;{print $1}&apos; \
+| xargs -r --no-run-if-empty docker rm &amp;&amp; \
+docker images --no-trunc | grep &apos;jenkins&apos; | awk &apos;{print $3}&apos; \
+| xargs -r --no-run-if-empty docker rmi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># set DOCKER_HOST environment variable
+export DOCKER_HOST=tcp://localhost:4243
+
+# record installed version of Docker and Maven with each build
+mvn --version &amp;&amp; \
+docker --version &amp;&amp; \
+docker-compose --version
+
+# use docker-compose to build new images and containers
+docker-compose -p jenkins up -d
+
+# list virtual-vehicles related images
+docker images | grep &apos;jenkins&apos; | awk &apos;{print $0}&apos;
+
+# list all containers
+docker ps -a | grep &apos;jenkins\|mongo_\|graphite&apos; | awk &apos;{print $0}&apos;
+
+
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># wait for containers to fully start before tests fire up
+# causing test failures without pause...
+sleep 15
+
+# test services
+sh tests.sh -v</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># remove all images and containers from this build
+docker ps -a --no-trunc  | grep &apos;jenkins&apos; | awk &apos;{print $1}&apos; \
+| xargs -r --no-run-if-empty docker stop &amp;&amp; \
+docker ps -a --no-trunc  | grep &apos;jenkins&apos; | awk &apos;{print $1}&apos; \
+| xargs -r --no-run-if-empty docker rm &amp;&amp; \
+docker images --no-trunc | grep &apos;jenkins&apos; | awk &apos;{print $3}&apos; \
+| xargs -r --no-run-if-empty docker rmi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

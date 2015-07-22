@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<maven2-moduleset plugin="maven-plugin@2.10">
+  <actions/>
+  <description>Compile, package, and deploy the Virtual-Vehicles microservices</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.plugins.maveninfo.config.MavenInfoJobConfig plugin="maven-info@0.2.0">
+      <mainModulePattern></mainModulePattern>
+      <dependenciesPattern></dependenciesPattern>
+      <assignName>false</assignName>
+      <nameTemplate></nameTemplate>
+      <assignDescription>false</assignDescription>
+      <descriptionTemplate></descriptionTemplate>
+    </jenkins.plugins.maveninfo.config.MavenInfoJobConfig>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.11.3">
+      <projectUrl>https://github.com/garystafford/virtual-vehicle-demo/</projectUrl>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.3.5">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/garystafford/virtual-vehicle-demo.git</url>
+        <credentialsId>***removed***</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/reverseproxy</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir></relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.11.3">
+      <spec></spec>
+    </com.cloudbees.jenkins.GitHubPushTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <rootModule>
+    <groupId>com.example</groupId>
+    <artifactId>Virtual-Vehicles-API</artifactId>
+  </rootModule>
+  <goals>clean install package validate -e -X</goals>
+  <aggregatorStyleBuild>true</aggregatorStyleBuild>
+  <incrementalBuild>false</incrementalBuild>
+  <ignoreUpstremChanges>false</ignoreUpstremChanges>
+  <archivingDisabled>false</archivingDisabled>
+  <siteArchivingDisabled>false</siteArchivingDisabled>
+  <fingerprintingDisabled>false</fingerprintingDisabled>
+  <resolveDependencies>false</resolveDependencies>
+  <processPlugins>true</processPlugins>
+  <mavenValidationLevel>-1</mavenValidationLevel>
+  <runHeadless>false</runHeadless>
+  <disableTriggerDownstreamProjects>false</disableTriggerDownstreamProjects>
+  <blockTriggerWhenBuilding>true</blockTriggerWhenBuilding>
+  <settings class="jenkins.mvn.DefaultSettingsProvider"/>
+  <globalSettings class="jenkins.mvn.DefaultGlobalSettingsProvider"/>
+  <reporters/>
+  <publishers>
+    <org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerPublisher plugin="artifactdeployer@0.33">
+      <entries>
+        <org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+          <includes>config/**, Vehicle*.jar</includes>
+          <basedir>Vehicle/target</basedir>
+          <excludes></excludes>
+          <remote>/home/gstafford/NetBeansProjects/virtual-vehicles-docker/vehicle/artifacts</remote>
+          <flatten>false</flatten>
+          <deleteRemote>true</deleteRemote>
+          <deleteRemoteArtifacts>false</deleteRemoteArtifacts>
+          <deleteRemoteArtifactsByScript>false</deleteRemoteArtifactsByScript>
+          <failNoFilesDeploy>false</failNoFilesDeploy>
+        </org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+        <org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+          <includes>config/**, Valet*.jar</includes>
+          <basedir>Valet/target</basedir>
+          <excludes></excludes>
+          <remote>/home/gstafford/NetBeansProjects/virtual-vehicles-docker/valet/artifacts</remote>
+          <flatten>false</flatten>
+          <deleteRemote>true</deleteRemote>
+          <deleteRemoteArtifacts>false</deleteRemoteArtifacts>
+          <deleteRemoteArtifactsByScript>false</deleteRemoteArtifactsByScript>
+          <failNoFilesDeploy>false</failNoFilesDeploy>
+        </org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+        <org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+          <includes>config/**, Maintenance*.jar</includes>
+          <basedir>Maintenance/target</basedir>
+          <excludes></excludes>
+          <remote>/home/gstafford/NetBeansProjects/virtual-vehicles-docker/maintenance/artifacts</remote>
+          <flatten>false</flatten>
+          <deleteRemote>true</deleteRemote>
+          <deleteRemoteArtifacts>false</deleteRemoteArtifacts>
+          <deleteRemoteArtifactsByScript>false</deleteRemoteArtifactsByScript>
+          <failNoFilesDeploy>false</failNoFilesDeploy>
+        </org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+        <org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+          <includes>config/**, Authentication*.jar</includes>
+          <basedir>Authentication/target</basedir>
+          <excludes></excludes>
+          <remote>/home/gstafford/NetBeansProjects/virtual-vehicles-docker/authentication/artifacts</remote>
+          <flatten>false</flatten>
+          <deleteRemote>true</deleteRemote>
+          <deleteRemoteArtifacts>false</deleteRemoteArtifacts>
+          <deleteRemoteArtifactsByScript>false</deleteRemoteArtifactsByScript>
+          <failNoFilesDeploy>false</failNoFilesDeploy>
+        </org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerEntry>
+      </entries>
+      <deployEvenBuildFail>false</deployEvenBuildFail>
+    </org.jenkinsci.plugins.artifactdeployer.ArtifactDeployerPublisher>
+  </publishers>
+  <buildWrappers/>
+  <prebuilders/>
+  <postbuilders/>
+  <runPostStepsIfResult>
+    <name>SUCCESS</name>
+    <ordinal>0</ordinal>
+    <color>BLUE</color>
+    <completeBuild>true</completeBuild>
+  </runPostStepsIfResult>
+</maven2-moduleset>
