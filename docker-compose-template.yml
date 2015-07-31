@@ -1,0 +1,100 @@
+  ########################################################################
+#
+# title:       Docker Compose YAML file for Virtual-Vehicles Project
+# author:      Gary A. Stafford (https://programmaticponderings.com)
+# url:         https://github.com/garystafford/virtual-vehicles-docker  
+# description: Pulls (5) images, builds (5) images, and builds (11) containers,
+#              for the Virtual-Vehicles Java microservices example REST API
+# to run:      docker-compose -p <your_project_name_here> up -d
+#
+########################################################################
+
+mongoauthentication:
+  build: mongo/
+
+mongovalet:
+  build: mongo/
+
+mongomaintenance:
+  build: mongo/
+
+mongovehicle:
+  build: mongo/
+
+authentication:
+  build: authentication/
+  links:
+   - graphite
+   - mongoauthentication
+   - elk
+  expose:
+   - "8587"
+  extra_hosts:
+   - "{{ base_url }}:{{ host_ip }}"
+
+valet:
+  build: valet/
+  links:
+   - graphite
+   - mongovalet
+   - elk
+  expose:
+   - "8585"
+  extra_hosts:
+   - "{{ base_url }}:{{ host_ip }}"
+
+maintenance:
+  build: maintenance/
+  links:
+   - graphite
+   - mongomaintenance
+   - elk
+  expose:
+   - "8583"
+  extra_hosts:
+   - "{{ base_url }}:{{ host_ip }}"
+
+vehicle:
+  build: vehicle/
+  links:
+   - graphite
+   - mongovehicle
+   - elk
+  expose:
+   - "8581"
+  extra_hosts:
+   - "{{ base_url }}:{{ host_ip }}"
+
+graphite:
+  image: hopsoft/graphite-statsd:latest
+  ports:
+   - "8500:80"
+
+nginx:
+  build: nginx/
+  ports:
+   - "80:80"
+  links:
+   - vehicle
+   - valet
+   - authentication
+   - maintenance
+
+elk:
+  build: elk/
+  ports:
+    - "8200:80"
+    - "5000:5000/udp"
+    - "5001:5001/udp"
+    - "9200:9200"
+
+logspout:
+  build: logspout/
+  volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+  links:
+    - elk
+  ports:
+   - "8000:80"
+  environment:
+    - ROUTE_URIS=logstash://elk:5000
