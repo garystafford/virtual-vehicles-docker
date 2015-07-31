@@ -83,10 +83,10 @@ nginx:
 elk:
   build: elk/
   ports:
-    - "8200:80"
-    - "5000:5000/udp"
-    - "5001:5001/udp"
-    - "9200:9200"
+    - "8200:80"       # kibana
+    - "5000:5000/udp" # logspout
+    - "5001:5001/udp" # log4j2 socket appender
+    - "9200:9200"     # elasticsearch
 
 logspout:
   build: logspout/
@@ -95,6 +95,6 @@ logspout:
   links:
     - elk
   ports:
-   - "8000:80"
+   - "8000:80"        # html message debugging
   environment:
     - ROUTE_URIS=logstash://elk:5000
