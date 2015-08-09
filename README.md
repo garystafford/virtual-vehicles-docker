@@ -48,7 +48,7 @@ docker-machine create --driver virtualbox test
 eval "$(docker-machine env test)"
 
 # use docker-compose to pull and build new images and containers
-docker-compose -p jenkins up -d
+docker-compose -p jenkins up -d --x-smart-recreate
 
 # optional: list machines, images, and containers
 docker-machine ls && docker images && docker ps -a

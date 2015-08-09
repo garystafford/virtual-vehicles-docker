@@ -1,2 +1,3 @@
 *.test
 certs/
+build-artifacts/

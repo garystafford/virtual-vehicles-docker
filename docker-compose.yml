@@ -86,7 +86,7 @@ elk:
     - "8200:80"       # kibana
     - "5000:5000/udp" # logspout
     - "5001:5001/udp" # log4j2 socket appender
-    - "9200:9200"     # elasticsearch REST api
+    - "9200:9200"     # elasticsearch
 
 logspout:
   build: logspout/
