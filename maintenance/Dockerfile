@@ -9,5 +9,5 @@ ENV REFRESHED_AT 2015-08-09
 COPY ./build-artifacts /usr/share/java/virtual-vehicles
 WORKDIR /usr/share/java/virtual-vehicles
 
-ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Maintenance-1.124.jar", "test", "com.example.maintenance.Main"]
+ENTRYPOINT ["java", "-classpath", ".:config:", "-jar", "Maintenance-1.125.jar", "test", "com.example.maintenance.Main"]
 CMD [""]
