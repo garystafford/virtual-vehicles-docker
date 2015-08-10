@@ -1,7 +1,7 @@
 *.test
 certs/
 build-artifacts/
-authentication/Dockerfile
-maintenance/Dockerfile
-valet/Dockerfile
-vehicle/Dockerfile
+authentication/**/Dockerfile
+maintenance/**/Dockerfile
+valet/**/Dockerfile
+vehicle/**/Dockerfile
