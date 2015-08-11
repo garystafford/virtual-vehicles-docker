@@ -1,5 +1,5 @@
-*.test
 certs/
+docker-compose.yml
 build-artifacts/
 authentication/**/Dockerfile
 maintenance/**/Dockerfile
