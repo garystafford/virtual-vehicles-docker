@@ -53,7 +53,7 @@ sh tests_color.sh $(docker-machine ip test)
 docker-machine stop test && docker-machine rm test
 ```
 ##### Browse the Project
-* Site: http://api.virtual-vehicles.com
+* NGINX: http://api.virtual-vehicles.com
 * NGINX: http://api.virtual-vehicles.com/nginx_status
 * Kibana: http://api.virtual-vehicles.com:8200
 * Elasticsearch: http://api.virtual-vehicles.com:9200
