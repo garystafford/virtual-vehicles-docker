@@ -3,6 +3,7 @@ Continuous Integration and Delivery of Microservices-based REST API with RestExp
 
 In the below series of posts, we learned how to use Jenkins CI, Maven, Docker, Docker Compose, and Docker Machine to take a set of Java-based microservices from source control on GitHub, to a fully tested set of integrated Docker containers running within an Oracle VirtualBox VM. We performed integration tests, using a scripted set of synthetic transactions, to make sure the microservices were functioning as expected, within their containers.
 
+<p><a href="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png"><img class=" wp-image-5933 size-full alignnone" style="border:0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png?w=620" alt="ELK Stack 3D Diagram"   /></a></p>
 
 ##### Reference Blog Posts
 * [Containerized Microservice Log Aggregation and Visualization using ELK Stack and Logspout](http://wp.me/p1RD28-1wl)
@@ -60,3 +61,5 @@ docker-machine stop test && docker-machine rm test
 * Elasticsearch: http://api.virtual-vehicles.com:9200/_status?pretty
 * Logspout: http://api.virtual-vehicles.com:8000/logs
 * Graphite: http://api.virtual-vehicles.com:8500
+
+<p><a href="https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png"><img class="aligncenter wp-image-5856 size-full" style="border:0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png?w=620" alt="ELK Ports"   /></a></p>
