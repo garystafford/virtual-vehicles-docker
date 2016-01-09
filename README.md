@@ -25,7 +25,7 @@ docker-machine stop test || echo "nothing to stop" && \
 docker-machine rm test   || echo "nothing to remove"
 
 # use docker-machine to create and configure 'test' environment
-docker-machine create --driver virtualbox test --debug
+docker-machine --debug create --driver virtualbox test
 eval "$(docker-machine env test)"
 
 # pull build artifacts from virtual-vehicles-demo project
