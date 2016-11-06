@@ -2,9 +2,9 @@
 
 _Continuous Integration and Delivery of Microservices-based REST API with RestExpress, Java EE, and MongoDB, using Jenkins CI, Docker Machine, and Docker Compose._
 
-<div style="background: lightgray;padding:12px;color:darkgray;">PROJECT CODE UPDATED: 11-06-2016</div>
+<div style="background:lightgray;padding:12px;color:darkgray;">PROJECT CODE UPDATED: 11-06-2016</div>
 
-<div style="background: lightgray;font-style:italic;padding:12px;color:darkgray;">NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.</div>
+<div style="background:lightgray;font-style:italic;padding:12px;color:darkgray;">NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.</div>
 
 ## Introduction
 
