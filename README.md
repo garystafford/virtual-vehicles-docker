@@ -18,12 +18,12 @@ In the below series of posts, we learned how to use Jenkins CI, Maven, Docker, D
 
 ### Build Test Environment Project
 ```bash
-# check current versions of required apps
+# check for latest versions of required apps
 docker -v && docker-compose -v && \
-    docker-machine -v && VBoxManage --version
+docker-machine -v && VBoxManage --version
 
 # pull this GitHub project
-git clone https://github.com/garystafford/virtual-vehicles-docker.git
+git clone https://github.com/garystafford/virtual-vehicles-docker.git && \
 cd virtual-vehicles-docker
 
 # clean up any previous machine failures
@@ -48,10 +48,7 @@ docker-machine ls && docker images && docker ps -a
 # wait for containers to fully start before tests fire up
 sleep 30
 
-# linux: add local dns name to hosts file for demo
-echo "$(docker-machine ip test)   api.virtual-vehicles.com" | sudo tee --append /etc/hosts
-
-# mac: add local dns name to hosts file for demo
+# add local dns name to hosts file for demo (mac-friendly)
 sudo -- sh -c -e "echo '$(docker-machine ip test)   api.virtual-vehicles.com' >> /etc/hosts";
 
 # test the services
@@ -59,10 +56,12 @@ sh tests_color.sh $(docker-machine ip test)
 # alternate: sh tests_color.sh api.virtual-vehicles.com
 
 # delete all images and containers
-docker rmi -f $(docker images -a -q) && docker rm -f $(docker ps -a -q)
+docker rmi -f $(docker images -a -q) && \
+docker rm -f $(docker ps -a -q)
 
 # tear down: stop and remove 'test' environment when complete
-docker-machine stop test && docker-machine rm test
+docker-machine stop test && \
+docker-machine rm test
 ```
 
 <p><a href="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png"><img src="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png?w=620" alt="Integration Tests" style="border:0 solid #ffffff;"/></a></p>
