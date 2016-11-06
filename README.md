@@ -56,6 +56,9 @@ echo "$(docker-machine ip test)   api.virtual-vehicles.com" | \
 sh tests_color.sh $(docker-machine ip test)
 # alternate: sh tests_color.sh api.virtual-vehicles.com
 
+# delete all images and containers
+docker rmi -f $(docker images -a -q) && docker rm -f $(docker ps -a -q)
+
 # tear down: stop and remove 'test' environment when complete
 docker-machine stop test && docker-machine rm test
 ```
