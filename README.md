@@ -48,9 +48,11 @@ docker-machine ls && docker images && docker ps -a
 # wait for containers to fully start before tests fire up
 sleep 30
 
-# Linux: add local dns name to hosts file for demo
-echo "$(docker-machine ip test)   api.virtual-vehicles.com" | \
-  sudo tee --append /etc/hosts
+# linux: add local dns name to hosts file for demo
+echo "$(docker-machine ip test)   api.virtual-vehicles.com" | sudo tee --append /etc/hosts
+
+# mac: add local dns name to hosts file for demo
+sudo -- sh -c -e "echo '$(docker-machine ip test)   api.virtual-vehicles.com' >> /etc/hosts";
 
 # test the services
 sh tests_color.sh $(docker-machine ip test)
