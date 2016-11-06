@@ -1,22 +1,22 @@
 # Continuous Integration and Delivery of Microservices
 
-Continuous Integration and Delivery of Microservices-based REST API with RestExpress, Java EE, and MongoDB, using Jenkins CI, Docker Machine, and Docker Compose.
+_Continuous Integration and Delivery of Microservices-based REST API with RestExpress, Java EE, and MongoDB, using Jenkins CI, Docker Machine, and Docker Compose._
 
 __PROJECT CODE UPDATED: 11-06-2016__  
 
-_NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x._
+__NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.__
 
-### Introduction
+## Introduction
 In the below series of posts, we learned how to use Jenkins CI, Maven, Docker, Docker Compose, and Docker Machine to take a set of Java-based microservices from source control on GitHub, to a fully tested set of integrated Docker containers running within an Oracle VirtualBox VM. We performed integration tests, using a scripted set of synthetic transactions, to make sure the microservices were functioning as expected, within their containers.
 
 <p><a href="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png"><img style="border:0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png?w=620" alt="ELK Stack 3D Diagram"/></a></p>
 
-### Reference Blog Posts
+## Reference Blog Posts
 * [Containerized Microservice Log Aggregation and Visualization using ELK Stack and Logspout](http://wp.me/p1RD28-1wl)
 * [Continuous Integration and Delivery of Microservices using Jenkins CI, Docker Machine, and Docker Compose](http://wp.me/p1RD28-1uZ)
 * [Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB: Part 3](http://wp.me/p1RD28-1sc)
 
-### Build Test Environment Project
+## Build Test Environment Project
 ```bash
 # check for latest versions of required apps
 docker -v && docker-compose -v && \
@@ -66,7 +66,7 @@ docker-machine rm test
 
 <p><a href="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png"><img src="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png?w=620" alt="Integration Tests" style="border:0 solid #ffffff;"/></a></p>
 
-### Browse the Project
+## Browse the Project
 * NGINX: http://api.virtual-vehicles.com
 * NGINX: http://api.virtual-vehicles.com/nginx_status
 * Kibana: http://api.virtual-vehicles.com:8200
