@@ -2,21 +2,24 @@
 
 _Continuous Integration and Delivery of Microservices-based REST API with RestExpress, Java EE, and MongoDB, using Jenkins CI, Docker Machine, and Docker Compose._
 
-__PROJECT CODE UPDATED: 11-06-2016__  
+<div style="background: lightgray;padding:12px;color:darkgray;">PROJECT CODE UPDATED: 11-06-2016</div>
 
-__NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.__
+<div style="background: lightgray;font-style:italic;padding:12px;color:darkgray;">NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.</div>
 
 ## Introduction
+
 In the below series of posts, we learned how to use Jenkins CI, Maven, Docker, Docker Compose, and Docker Machine to take a set of Java-based microservices from source control on GitHub, to a fully tested set of integrated Docker containers running within an Oracle VirtualBox VM. We performed integration tests, using a scripted set of synthetic transactions, to make sure the microservices were functioning as expected, within their containers.
 
-<p><a href="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png"><img style="border:0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png?w=620" alt="ELK Stack 3D Diagram"/></a></p>
+[![ELK Stack 3D Diagram](https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png?w=620)](https://programmaticponderings.files.wordpress.com/2015/08/elk-stack-3d-diagram-1.png)
 
 ## Reference Blog Posts
-* [Containerized Microservice Log Aggregation and Visualization using ELK Stack and Logspout](http://wp.me/p1RD28-1wl)
-* [Continuous Integration and Delivery of Microservices using Jenkins CI, Docker Machine, and Docker Compose](http://wp.me/p1RD28-1uZ)
-* [Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB: Part 3](http://wp.me/p1RD28-1sc)
+
+- [Containerized Microservice Log Aggregation and Visualization using ELK Stack and Logspout](http://wp.me/p1RD28-1wl)
+- [Continuous Integration and Delivery of Microservices using Jenkins CI, Docker Machine, and Docker Compose](http://wp.me/p1RD28-1uZ)
+- [Building a Microservices-based REST API with RestExpress, Java EE, and MongoDB: Part 3](http://wp.me/p1RD28-1sc)
 
 ## Build Test Environment Project
+
 ```bash
 # check for latest versions of required apps
 docker -v && docker-compose -v && \
@@ -43,7 +46,9 @@ sh pull_and_build.sh
 docker-compose -p vehicle up -d
 
 # list machines, images, and containers
-docker-machine ls && docker images && docker ps -a
+docker-machine ls && \
+docker images && \
+docker ps -a
 
 # wait for containers to fully start before tests fire up
 sleep 30
@@ -52,27 +57,34 @@ sleep 30
 sudo -- sh -c -e "echo '$(docker-machine ip test)   api.virtual-vehicles.com' >> /etc/hosts";
 
 # test the services
-sh tests_color.sh $(docker-machine ip test)
-# alternate: sh tests_color.sh api.virtual-vehicles.com
+sh tests_color.sh api.virtual-vehicles.com
+
+# alternate, test the services using IP address:
+# sh tests_color.sh $(docker-machine ip test)
 
 # delete all images and containers
 docker rmi -f $(docker images -a -q) && \
 docker rm -f $(docker ps -a -q)
 
-# tear down: stop and remove 'test' environment when complete
+# alternate, complete tear down: stop and remove 'test' environment when complete
 docker-machine stop test && \
 docker-machine rm test
 ```
 
-<p><a href="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png"><img src="https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png?w=620" alt="Integration Tests" style="border:0 solid #ffffff;"/></a></p>
+### Test Results
+
+[![Integration Tests](https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png?w=620)](https://programmaticponderings.files.wordpress.com/2015/08/integration-tests1.png)
 
 ## Browse the Project
-* NGINX: http://api.virtual-vehicles.com
-* NGINX: http://api.virtual-vehicles.com/nginx_status
-* Kibana: http://api.virtual-vehicles.com:8200
-* Elasticsearch: http://api.virtual-vehicles.com:9200
-* Elasticsearch: http://api.virtual-vehicles.com:9200/_status?pretty
-* Logspout: http://api.virtual-vehicles.com:8000/logs
-* Graphite: http://api.virtual-vehicles.com:8500
 
-<p><a href="https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png"><img class="aligncenter wp-image-5856 size-full" style="border:0 solid #ffffff;" src="https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png?w=620" alt="ELK Ports"/></a></p>
+- NGINX: <http://api.virtual-vehicles.com>
+- NGINX: <http://api.virtual-vehicles.com/nginx_status>
+- Kibana: <http://api.virtual-vehicles.com:8200>
+- Elasticsearch: <http://api.virtual-vehicles.com:9200>
+- Elasticsearch: <http://api.virtual-vehicles.com:9200/_status?pretty>
+- Logspout: <http://api.virtual-vehicles.com:8000/logs>
+- Graphite: <http://api.virtual-vehicles.com:8500>
+
+## Environment Architecture
+
+[![ELK Ports](https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png?w=620)](https://programmaticponderings.files.wordpress.com/2015/07/elk-ports.png)
