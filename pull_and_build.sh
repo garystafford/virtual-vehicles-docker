@@ -4,7 +4,7 @@
 #
 # title:          Pull Latest Build Artifacts Script
 # author:         Gary A. Stafford (https://programmaticponderings.com)
-# url:            https://github.com/garystafford/virtual-vehicles-docker  
+# url:            https://github.com/garystafford/virtual-vehicles-docker
 # description:    Pull latest build artifacts from virtual-vehicles-demo repo
 #                 and build Dockerfile and YAML templates
 #
@@ -46,6 +46,6 @@ echo "Executing docker-compose.yml template builder"
 sh build_compose.sh
 
 #echo "run docker-compose.yml"
-#docker-compose -p jenkins up -d
+#docker-compose -p vehicle up -d
 
 echo "Template building process complete"

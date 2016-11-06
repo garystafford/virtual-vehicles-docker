@@ -4,7 +4,7 @@
 #
 # title:          Virtual-Vehicles Project Integration Tests
 # author:         Gary A. Stafford (https://programmaticponderings.com)
-# url:            https://github.com/garystafford/virtual-vehicles-docker  
+# url:            https://github.com/garystafford/virtual-vehicles-docker
 # description:    Performs integration tests on the Virtual-Vehicles
 #                 microservices
 # to run:         sh tests_color.sh
@@ -24,7 +24,7 @@ NC='\033[0m' # no color
 
 hostname=${1-'localhost'} # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
-secret="$(date +%s | sha256sum | base64 | head -c 15)" # randomized
+secret="$(date +%s | shasum | base64 | head -c 15)" # randomized
 make="Test"
 model="Foo"
 
