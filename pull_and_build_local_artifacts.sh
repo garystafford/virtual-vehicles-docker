@@ -23,6 +23,7 @@ rm -rf vehicle/build-artifacts/
 echo "Pulling latest build artficats"
 git clone https://github.com/garystafford/virtual-vehicles-demo.git \
   --branch build-artifacts-new \
+  --single-branch build-artifacts \
   build-artifacts
 
 echo "Moving build artifacts to each microservice directory"

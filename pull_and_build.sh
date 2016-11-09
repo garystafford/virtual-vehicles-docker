@@ -22,7 +22,8 @@ rm -rf vehicle/build-artifacts/
 
 echo "Pulling latest build artficats"
 git clone https://github.com/garystafford/virtual-vehicles-demo.git \
-  --branch build-artifacts
+  --branch build-artifacts \
+  --single-branch build-artifacts
 
 echo "Moving build artifacts to each microservice directory"
 mv build-artifacts/authentication/  authentication/build-artifacts/
@@ -43,6 +44,13 @@ pushd vehicle        && sh build_dockerfile.sh && popd
 
 echo "Executing docker-compose.yml template builder"
 sh build_compose.sh
+
+echo deleting previous images and all containers
+docker rm -f $(docker ps -a -q)
+docker rmi -f test_vehicle \
+  test_authentication \
+  test_maintenance \
+  test_valet
 
 #echo "run docker-compose.yml"
 #docker-compose -p vehicle up -d

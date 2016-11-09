@@ -75,7 +75,10 @@ eval "$(docker-machine env -u)"
 docker volume rm $(docker volume ls -qf dangling=true)
 
 # delete all project images, but not base images
-docker rmi -f $(docker images | grep 'test_' | awk '{print $1}')
+docker rmi -f $(docker images | grep 'test_' | awk '{print $3}')
+
+# delete all <none> images
+docker rmi -f $(docker images | grep '^<none>' | awk '{print $3}')
 ```
 
 ### Test Results

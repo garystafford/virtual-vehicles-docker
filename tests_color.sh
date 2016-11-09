@@ -22,7 +22,7 @@ GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 NC='\033[0m' # no color
 
-hostname=${1-'localhost'} # use input param or default to localhost
+hostname="${1:-api.virtual-vehicles.com}" # use input param or default to localhost
 application="Test API Client $(date +%s)" # randomized
 secret="$(date +%s | shasum | base64 | head -c 15)" # randomized
 make="Test"
