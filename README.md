@@ -2,9 +2,7 @@
 
 _Continuous Integration and Delivery of Microservices-based REST API with RestExpress, Java EE, and MongoDB, using Jenkins CI, Docker Machine, and Docker Compose._
 
-<div style="background:lightgray;padding:12px;color:darkgray;">PROJECT CODE UPDATED: 11-06-2016</div>
-
-<div style="background:lightgray;font-style:italic;padding:12px;color:darkgray;">NOTE: This project was originally built prior to Docker 1.12.x. Certain conventions used in the Docker Compose v1 YAML file are pre-1.12.x.</div>
+__PROJECT CODE UPDATED 11-09-2016 to v4.3.0__
 
 ## Introduction
 
@@ -43,15 +41,16 @@ sh pull_and_build.sh
 
 # use docker-compose to pull and build new images and containers
 # this will take up to 20 minutes or more to pull images
-docker-compose -p vehicle up -d
+docker-compose -p test up -d
 
 # list machines, images, and containers
+# check all containers are running
 docker-machine ls && \
 docker images && \
 docker ps -a
 
 # wait for containers to fully start before tests fire up
-sleep 30
+sleep 20
 
 # add local dns name to hosts file for demo (mac-friendly)
 sudo -- sh -c -e "echo '$(docker-machine ip test)   api.virtual-vehicles.com' >> /etc/hosts";
@@ -69,6 +68,14 @@ docker rm -f $(docker ps -a -q)
 # alternate, complete tear down: stop and remove 'test' environment when complete
 docker-machine stop test && \
 docker-machine rm test
+eval "$(docker-machine env -u)"
+
+# other useful commands
+# clean up orphaned volumes
+docker volume rm $(docker volume ls -qf dangling=true)
+
+# delete all project images, but not base images
+docker rmi -f $(docker images | grep 'test_' | awk '{print $1}')
 ```
 
 ### Test Results

@@ -4,7 +4,7 @@
 #
 # title:          Docker Compose YAML Template Variable Substitution Script
 # author:         Gary A. Stafford (https://programmaticponderings.com)
-# url:            https://github.com/garystafford/virtual-vehicles-docker  
+# url:            https://github.com/garystafford/virtual-vehicles-docker
 # description:    Replaces tokens in template and create docker-compose.yml
 #
 # to run:         sh run_comppse.sh
@@ -25,5 +25,5 @@ echo "  ${host_ip_token} = ${host_ip}"
 
 sed -e "s/${base_url_token}/${base_url}/g" \
     -e "s/${host_ip_token}/${host_ip}/g" \
-    < docker-compose-template.yml \
+    < docker-compose-template-v2.yml \
     > docker-compose.yml

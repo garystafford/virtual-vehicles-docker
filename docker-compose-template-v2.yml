@@ -1,0 +1,122 @@
+########################################################################
+#
+# title:       Docker Compose v2 YAML template for Virtual-Vehicles Project
+# author:      Gary A. Stafford (https://programmaticponderings.com)
+# url:         https://github.com/garystafford/virtual-vehicles-docker
+# description: Pulls (6) base images, builds (10) images, and builds (12) containers,
+#              for the Virtual-Vehicles Java microservices example REST API
+# to run:      docker-compose -p <your_project_name_here> up -d
+#
+########################################################################
+
+version: '2'
+services:
+  mongoauthentication:
+    build: mongo/
+
+  mongovalet:
+    build: mongo/
+
+  mongomaintenance:
+    build: mongo/
+
+  mongovehicle:
+    build: mongo/
+
+  authentication:
+    build: authentication/
+    ports:
+     - 8587:8587
+    extra_hosts:
+     - "{{ base_url }}:{{ host_ip }}"
+    depends_on:
+    - mongoauthentication
+    - elk
+    - graphite
+    hostname: authentication
+    container_name: authentication
+
+  valet:
+    build: valet/
+    ports:
+     - 8585:8585
+    extra_hosts:
+     - "{{ base_url }}:{{ host_ip }}"
+    depends_on:
+    - mongovalet
+    - elk
+    - graphite
+    hostname: valet
+    container_name: valet
+
+  maintenance:
+    build: maintenance/
+    ports:
+     - 8583:8583
+    extra_hosts:
+     - "{{ base_url }}:{{ host_ip }}"
+    depends_on:
+    - mongomaintenance
+    - elk
+    - graphite
+    hostname: maintenance
+    container_name: maintenance
+
+  vehicle:
+    build: vehicle/
+    ports:
+     - 8581:8581
+    extra_hosts:
+     - "{{ base_url }}:{{ host_ip }}"
+    depends_on:
+    - mongovehicle
+    - elk
+    - graphite
+    hostname: vehicle
+    container_name: vehicle
+
+  graphite:
+    image: hopsoft/graphite-statsd:latest
+    ports:
+     - 8500:80
+    hostname: graphite
+    container_name: graphite
+
+  nginx:
+    build: nginx/
+    ports:
+     - 80:80
+    depends_on:
+     - vehicle
+     - valet
+     - authentication
+     - maintenance
+    hostname: nginx
+    container_name: nginx
+
+  elk:
+    build: elk/
+    ports:
+      - 8200:80       # kibana
+      - 5000:5000/udp # logspout
+      - 5001:5001/udp # log4j2 socket appender
+      - 9200:9200     # elasticsearch
+    hostname: elk
+    container_name: elk
+
+  logspout:
+    image: amouat/logspout-logstash:latest
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - elk
+    ports:
+     - 8000:80 # html message debugging
+    environment:
+      - ROUTE_URIS=logstash://elk:5000
+    hostname: logspout
+    container_name: logspout
+
+networks:
+  status:
+    driver: bridge
