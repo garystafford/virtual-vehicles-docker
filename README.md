@@ -74,6 +74,9 @@ eval "$(docker-machine env -u)"
 # clean up orphaned volumes
 docker volume rm $(docker volume ls -qf dangling=true)
 
+# clean up orphaned networks
+docker network rm $(docker network ls -q)
+
 # delete all project images, but not base images
 docker rmi -f $(docker images | grep 'test_' | awk '{print $3}')
 
